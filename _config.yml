@@ -35,9 +35,6 @@ texture:
 #header_pages:
 # - about.md
 
-# Build settings
-theme: texture
-
 plugins:
   - jekyll-seo-tag
 #  - jekyll-feed
