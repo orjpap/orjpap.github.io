@@ -1,3 +1,6 @@
+---
+layout: page
+---
 **Privacy Policy**
 
 Orestis Papadopoulos built the Podfast app as a Free app. This SERVICE is provided by Orestis Papadopoulos at no cost and is intended for use as is.
