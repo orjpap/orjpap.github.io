@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Coming "
+title:  "Coming Soon"
 date:   2019-05-23 21:03:36 +0530
 ---
 My blog is coming soon, until then here's a nice landscape picture:
