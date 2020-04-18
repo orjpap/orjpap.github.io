@@ -3,7 +3,7 @@ layout: post
 title:  "Coming Soon"
 date:   2019-05-23 21:03:36 +0530
 ---
-My blog is coming soon, 
+This blog is currently under construction.
 
 ---
 
