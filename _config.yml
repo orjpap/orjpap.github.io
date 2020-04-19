@@ -42,7 +42,7 @@ plainwhite:
   navigation: true
 
 # Build settings
-theme: plainwhite
+remote_theme: thelehhman/plainwhite-jekyll
 
 plugins:
   - jekyll-seo-tag
