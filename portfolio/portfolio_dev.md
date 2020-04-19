@@ -4,8 +4,6 @@ category: featured
 title: Portfolio
 ---
 
-# Portfolio
-
 ## Podfast
 
 ![podfast_portfolio_halfsize_15](../assets/images/podfast_portfolio_halfsize_15.gif)
