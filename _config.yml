@@ -41,9 +41,6 @@ plainwhite:
     #   instance: example.com
   navigation: true
 
-# Build settings
-remote_theme: thelehhman/plainwhite-jekyll
-
 plugins:
   - jekyll-seo-tag
 #  - jekyll-feed
