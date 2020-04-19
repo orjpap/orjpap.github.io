@@ -12,7 +12,7 @@ sass:
   sass_dir: _sass
 plainwhite:
   name: Orestis Papadopoulos
-  tagline: Sound, Software, Swift
+  tagline: Software, Sound, Swift
   date_format: "%b %-d, %Y"
   sitemap: true # set to true to generate sitemap.xml content
 
