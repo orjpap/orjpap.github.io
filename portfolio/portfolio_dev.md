@@ -8,23 +8,22 @@ title: Portfolio
 
 ![podfast_portfolio_halfsize_15](../assets/images/podfast_portfolio_halfsize_15.gif)
 
+Role: Creator, Software Developer
+
 Platform: iOS
 
-Role: Creator, Software Developer
+[<img src="../assets/images/download_on_the_app_store.svg">](https://apps.apple.com/us/app/podfast/id1507685149?ls=1)
+
+[Github](https://github.com/orjpap/podfast)
 
 ### Technologies
 
 * iOS
-
 * Audio Streaming
-
-* Audio QOS
-
+* RSS
 * Firebase Remote Config
-
 * Firebase Analytics
-
-  
+* Realm
 
 ---
 
@@ -34,7 +33,15 @@ Role: Creator, Software Developer
 
 Platform: iOS/Android
 
-Role: Software Developer iOS, Technical Project Manager
+Role: Software Developer (iOS), Technical Project Manager
+
+### Technologies
+
+* iOS
+* Firebase Analytics
+* AppCenter Builds
+* Alamofire
+* Realm
 
 ---
 
@@ -44,7 +51,15 @@ Role: Software Developer iOS, Technical Project Manager
 
 Platform: iOS/Android
 
-Role: Software Developer iOS, Technical Project Manager
+Role: Software Developer (iOS), Technical Project Manager
+
+### Technologies
+
+* iOS
+* Firebase Analytics
+* AppCenter Builds
+* Alamofire
+* Realm
 
 ---
 
@@ -54,7 +69,15 @@ Role: Software Developer iOS, Technical Project Manager
 
 Platform: iOS/Android
 
-Role: Software Developer iOS
+Role: Software Developer (iOS)
+
+### Technologies
+
+* iOS
+* Firebase Analytics
+* AppCenter Builds
+* Alamofire
+* Realm
 
 ---
 
@@ -66,15 +89,30 @@ Platform: iOS
 
 Role: Creator, Software Developer
 
+[Github](https://github.com/orjpap/MenoumeSpiti-MovementSMS)
+
+### Technologies
+
+* SwiftUI
+* Firebase Remote Config
+
 ---
 
-## Rhythmiq
+## Accusonus Rhythmiq
 
 ![portfolio_rhythmiq](../assets/images/portfolio_rhythmiq.png)
 
 Platform: Windows/Mac available as AU/VST/VST3 Plugin
 
 Role: Software Developer
+
+### Technologies
+
+* C++
+* Eigen
+* JUCE
+* MIDI
+* Jenkins
 
 ---
 
@@ -88,6 +126,7 @@ Role: Creator, Software Developer
 
 ### Technologies
 
+* Objective-C
 * Procedural/Generative Audio
 * Pure Data
 * libpd for iOS
