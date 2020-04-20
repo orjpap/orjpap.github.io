@@ -17,7 +17,7 @@ Go to **File -> New -> File** (or cmd + N) and select the **"Configuration Setti
 
 A Configuration Settings File (a file with a `.xcconfig` file extension) is a plain text file that defines and overrides the [build settings](https://help.apple.com/xcode/mac/11.4/#/dev382dac089) for a particular build configuration of a project or target.
 
-We'll make one file for Production, called Production.xcconfig and another one for Development called, you guessed it, Development.xcconfig
+We'll create one file for Production, called **Production.xcconfig** and another one for Development called... you guessed it, **Development.xcconfig**
 
 ## Define **build variables**
 
@@ -53,7 +53,7 @@ Then select which configuration file this build configuration is based on. You c
 
 ## Assign Build Configurations
 
-Now if we navigate to "Edit Scheme" for the current scheme our just defined build configurations are avaiable to select for the different actions.
+Now if we navigate to **"Edit Scheme"** for the current scheme, our just defined build configurations are avaiable to select for the different actions.
 
 ![3](/assets/images/2019-14-20-iOS-build-schemes.assets/3.png)
 
@@ -61,7 +61,7 @@ If it wasn't for **cocoapods** our project would build and run right now, but we
 
 ## Create Custom Schemes
 
-I usually delete (select and click on the "-" icon) the default scheme and create new ones for each configuration. From the "manage schemes" menu, let's make two schemes named Production and Development using the default target. Don't forget to edit the schemes to run the corresponding build configuration on <u>Run</u>
+I usually delete (select and click on the "-" icon) the default scheme and create new ones for each configuration. From the "manage schemes" menu, let's create two new schemes named **Production** and **Development** using the default target. Don't forget to edit the schemes to run the corresponding build configuration on <u>Run</u>
 
 ![4](/assets/images/2019-14-20-iOS-build-schemes.assets/4.png)
 
