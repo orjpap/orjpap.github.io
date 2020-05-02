@@ -2,7 +2,7 @@
 
 layout: post
 title:  "How to Set Up Xcode Build Configurations"
-date:   2019-04-20 21:03:36 +0530
+date:   2020-04-20 21:03:36 +0530
 categories: Xcode iOS Swift Cocoapods
 
 ---
