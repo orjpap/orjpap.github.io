@@ -1,11 +1,13 @@
 ---
+
 layout: post
 title:  "How to Set Up Xcode Build Configurations"
 date:   2019-04-20 21:03:36 +0530
 categories: Xcode iOS Swift Cocoapods
+
 ---
 
-Build configurations are useful for a handful of reasons. If you are developing an app that's currently in production, chances are you are switching from your production API endpoints to some kind of **test environment** endpoints for development. Of course you can do the "comment/uncomment URL constants" dance everytime you need to **switch environments**, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable. 
+Build configurations are useful for a handful of reasons. If you are developing an app that's currently in production, chances are you are switching from your production API endpoints to some kind of **test environment** endpoints for development. Of course you can do the "comment/uncomment URL constants" dance everytime you need to **switch environments**, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable.
 
 Take **automated builds** for example, be it custom nightly build scripts or some ultra-fancy CI pipeline. The number one rule of automated build is that you have to be able to produce a build for your project with a *"single command"*. Which is not the case if you need to comment/uncomment lines every time you build in order to point to the correct environment.
 

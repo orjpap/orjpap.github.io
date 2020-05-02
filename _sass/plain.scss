@@ -26,10 +26,32 @@ body {
 
 img,
 embed,
-object,
-video {
+object {
   max-width: 100%;
 }
+
+.post {
+  img, video {
+    padding: 1em;
+  }
+
+  .appstoreDownload {
+    padding: 0;
+  }
+
+  video {
+  margin: 0 auto; width: 100%;
+  }
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+
 
 a {
   color: #000;
@@ -235,12 +257,39 @@ main {
   }
 }
 
-#posts-label {
-  border-bottom: 1px solid #eee;
-  font-size: 15px;
-  color: #777;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding-bottom: 10px;
-  font-weight: normal;
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic);
+blockquote{
+  font-size: 1.3em;
+  width:80%;
+  margin:50px auto;
+  font-family:Open Sans;
+  font-style:italic;
+  color: #555555;
+  padding:1.2em 30px 1.2em 75px;
+  border-left:8px solid #555555;
+  line-height:1.4;
+  position: relative;
+  background:#EDEDED;
+}
+
+blockquote::before{
+  font-family:Arial;
+  content: "\201C";
+  color:black;
+  font-size:4em;
+  position: absolute;
+  left: 10px;
+  top:-10px;
+}
+
+blockquote::after{
+  content: '';
+}
+
+blockquote span{
+  display:block;
+  color:#333333;
+  font-style: normal;
+  font-weight: bold;
+  margin-top:1em;
 }

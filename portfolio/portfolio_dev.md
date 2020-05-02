@@ -12,7 +12,7 @@ Role: Creator, Software Developer
 
 Platform: iOS
 
-[<img src="../assets/images/download_on_the_app_store.svg">](https://apps.apple.com/us/app/podfast/id1507685149?ls=1)
+[<img src="../assets/images/download_on_the_app_store.svg" class="appstoreDownload">](https://apps.apple.com/us/app/podfast/id1507685149?ls=1)
 
 [Github](https://github.com/orjpap/podfast)
 
