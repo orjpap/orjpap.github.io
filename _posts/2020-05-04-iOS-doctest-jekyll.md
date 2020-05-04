@@ -1,7 +1,7 @@
 ---
 
 layout: post
-title:  "Automatic Swift Tests for Jekyll Websites"
+title:  "Jekyll: Testing Swift Code Blocks"
 date:   2020-05-04 21:03:36 +0530
 categories: Jekyll Swift Testing
 doctest: true
@@ -113,7 +113,7 @@ ok 1 - `user.name == anotherUser.name` produces `Bool = false`
 
 ## Conclusion
 
-That's all you need in order to enable testing for your Swift codeblocks in your Jekyll site!
+That's all you need in order to enable testing for Swift codeblocks in your Jekyll site!
 
 Keep your eyes peeled for further updates to the very promising [Doctest](https://github.com/SwiftDocOrg/DocTest?utm_campaign=iOS%2BDev%2BWeekly&utm_medium=web&utm_source=iOS%2BDev%2BWeekly%2BIssue%2B454) since it's still on its early days.
 
