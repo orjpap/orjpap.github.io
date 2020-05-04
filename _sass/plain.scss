@@ -192,13 +192,12 @@ main {
     font-size: 14px;
     float: left;
     background-color: #e3e3e3;
-    padding: 5px 20px;
+    padding: 0px 15px;
     border-radius: 2px;
     @media screen and (max-width: $mobileW) {
       margin-top: 5px;
     }
     margin-right: 10px;
-    margin-bottom: 10px;
   }
 }
 .post-date {
