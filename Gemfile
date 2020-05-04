@@ -3,5 +3,6 @@
 source "https://rubygems.org"
 group :jekyll_plugins do
   gem 'jekyll-commonmark-ghpages'
+  gem 'jekyll-feed'
 end
 gemspec

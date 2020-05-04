@@ -4,10 +4,11 @@ layout: post
 title:  "Podfast: a Podcast Discovery App"
 date:   2020-05-02 21:03:36 +0530
 categories: Product Design Swift iOS
+doctest: false
 
 ---
 
-I can clearly recall my mother's disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me. 
+I can clearly recall my mother's disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me.
 
 At the time there was only a built-in app called [Podcasts](https://apps.apple.com/us/app/apple-podcasts/id525463029) that allowed you to listen to podcasts. Also, Generation Z's complete lack of interest in the radio experience had already signaled the start of a new era. Podcasting, once an obscure process of transmitting audio content, had now become a distinguished medium for its distribution.
 
@@ -25,10 +26,10 @@ Getting started, at the top level, I described what I was trying to build in the
 
 > As a listener I want to discover podcasts by scrolling while listening to them
 
-This was pretty much it. This single user story has since spawned a lot of other stories, tasks, sub-tasks etc. These sub-stories all revolve around the three above-mentioned characteristics. The process was: 
-(a) think of a scenario 
-(b) write code that implements it 
-(c) assess the value it adds for the user 
+This was pretty much it. This single user story has since spawned a lot of other stories, tasks, sub-tasks etc. These sub-stories all revolve around the three above-mentioned characteristics. The process was:
+(a) think of a scenario
+(b) write code that implements it
+(c) assess the value it adds for the user
 (d) integrate it into the app. That's how I made an iOS app **prototype** pretty quickly, implementing this user story into local podcast audio files and just a [UISlider](https://developer.apple.com/documentation/uikit/uislider).
 
 <video controls width="320" height="576">
