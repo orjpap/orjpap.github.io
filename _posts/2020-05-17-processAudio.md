@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "AVAudioSourceNode, AVAudioSinkNode or How I deleted a Repo in Less Than 24 hours"
+title:  "AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours"
 date:   2020-05-19 10:03:36 +0530
 categories: Swift Real-time Audio AVFoundation
 doctest: true 
