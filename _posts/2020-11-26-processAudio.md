@@ -3,7 +3,8 @@ layout: post
 title:  "AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours"
 date:   2020-05-19 10:03:36 +0530
 categories: Swift Real-time Audio AVFoundation
-doctest: true 
+doctest: true
+hidden: true
 ---
 
 Two days ago, I set out to create a simple Swift library for real-time audio processing. I was aiming to provide an easy to setup way of **processing input** from an audio device/file, and **generating output** to a device/file, sample by sample.

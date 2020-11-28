@@ -82,7 +82,7 @@ not ok 1 - `user.name == anotherUser.name` produces `Bool = false`, expected `Bo
 
 Nice! If you just change the example to:
 
-```swift doctest
+```swift
 struct User {
 	let name: String
 }
