@@ -116,7 +116,7 @@ And this is it. You can now upload your image to the server. A very good example
 I didn't go into much detail about the HTTP specifics because:
 
 1. This is a sort of tl;dr blog post where I'm sharing some (I hope) useful code with you
-2. Dony Wals has done an excellent job at explaining this in [his blog post](https://www.donnywals.com/uploading-images-and-forms-to-a-server-using-urlsession/)
+2. Donny Wals has done an excellent job at explaining this in [his blog post](https://www.donnywals.com/uploading-images-and-forms-to-a-server-using-urlsession/)
 3. You can read about it [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST)
 
 Feel free to [contact me](mailto:orjpap@gmail.com) or tweet to me on [Twitter](https://twitter.com/OrestisPapadop8) for tips, feedback, opinions.
