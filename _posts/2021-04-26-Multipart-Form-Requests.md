@@ -99,7 +99,7 @@ func asURLRequest() -> URLRequest {
 
 Bonus round:
 
-A handy `URLSession` extension
+A handy `URLSession` extension. You can also make this an upload task, or use background sessions etc.
 
 ```swift
 extension URLSession {
