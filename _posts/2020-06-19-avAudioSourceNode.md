@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "AVAudioSourceNode, AVAudioSinkNode: low-level audio in Swift"
+title:  "AVAudioSourceNode, AVAudioSinkNode: Low-Level Audio In Swift"
 date:   2020-06-19 10:03:36 +0530
 categories: Swift Real-time Audio AVFoundation
 doctest: true 
