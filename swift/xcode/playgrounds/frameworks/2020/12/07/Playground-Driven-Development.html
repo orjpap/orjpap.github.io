@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<script async defer data-domain="orjpap.github.io" src="https://plausible.io/js/plausible.js"></script>
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Pragmatic Playground Driven Development (Part 1)</title>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Pragmatic Playground Driven Development (Part 1) | Orestis Papadopoulos</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Pragmatic Playground Driven Development (Part 1)" />
+<meta name="author" content="Orestis Papadopoulos" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Using Xcode Playgrounds speeds up your development cycle by reducing compile times. You can make changes to a view, hit compile and view the change in seconds. However, adding Playgrounds that instantiate controllers from your application can be frustrating." />
+<meta property="og:description" content="Using Xcode Playgrounds speeds up your development cycle by reducing compile times. You can make changes to a view, hit compile and view the change in seconds. However, adding Playgrounds that instantiate controllers from your application can be frustrating." />
+<meta property="og:site_name" content="Orestis Papadopoulos" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-12-07T06:33:36+02:00" />
+<script type="application/ld+json">
+{"datePublished":"2020-12-07T06:33:36+02:00","headline":"Pragmatic Playground Driven Development (Part 1)","mainEntityOfPage":{"@type":"WebPage","@id":"/swift/xcode/playgrounds/frameworks/2020/12/07/Playground-Driven-Development.html"},"url":"/swift/xcode/playgrounds/frameworks/2020/12/07/Playground-Driven-Development.html","author":{"@type":"Person","name":"Orestis Papadopoulos"},"description":"Using Xcode Playgrounds speeds up your development cycle by reducing compile times. You can make changes to a view, hit compile and view the change in seconds. However, adding Playgrounds that instantiate controllers from your application can be frustrating.","@type":"BlogPosting","dateModified":"2020-12-07T06:33:36+02:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+</head>
+  <body>
+    <main class="container">
+      <section class="about">
+        <a href="/"><img src="/assets/portfolio.png" alt="Orestis Papadopoulos"></a>
+        <h2 id="title">
+          <a href="/">Orestis Papadopoulos</a>
+        </h2>
+        <p class="tagline">Software, Sound, Swift</p>
+        <ul class="social"><a href="https://github.com/orjpap">
+              <li>
+                <i class="icon-github-circled"></i>
+              </li>
+            </a><a href="https://twitter.com/OrestisPapadop8">
+              <li>
+                <i class="icon-twitter-squared"> </i>
+              </li>
+            </a><a href="mailto:orjpap@gmail.com">
+              <li>
+                <i class="icon-mail"> </i>
+              </li>
+            </a></ul><nav class="navigation">
+            <ul>
+              
+                
+              
+                
+              
+                
+                  <li><a href="/portfolio/portfolio_dev.html"> Portfolio </a></li>
+                
+              
+                
+              
+                
+              
+                
+              
+                
+              
+            </ul>
+          </nav></section>
+      <section class="content">
+        <div class="post-container">
+  <a class="post-link" href="/swift/xcode/playgrounds/frameworks/2020/12/07/Playground-Driven-Development.html">
+    <h2 class="post-title">Pragmatic Playground Driven Development (Part 1)</h2>
+  </a>
+  <div class="post-meta">
+    <ul class="post-categories"><li>Swift</li><li>Xcode</li><li>Playgrounds</li><li>Frameworks</li></ul>
+    <div class="post-date">Dec 7, 2020</div>
+  </div>
+  <div class="post">
+    <p>Using Xcode Playgrounds speeds up your development cycle by reducing compile times. You can make changes to a view, hit compile and view the change in seconds. However, adding Playgrounds that instantiate controllers from your application can be frustrating.</p>
+
+<p>Anything in an App Target is not visible to the playground because App Targets do not define a module. A module is defined bla bla.</p>
+
+<p>That’s where frameworks come to play</p>
+
+<p>What you gain from modularising your application using frameworks:</p>
+
+<ul>
+  <li>Dependencies become immediately apparent, pushing your to think about designing dependencies. It’s important to <u>care</u> about dependencies. The better you separate your code from its dependencies the more testable, readable, maintainable it becomes.</li>
+  <li>Shorter build times when you make changes to a module. Xcode needs to compile only that module.</li>
+  <li>Code reuse in different projects and easier integration.</li>
+  <li>Provide clearer interfaces and better encapsulation. The framework only exposes what’s needed</li>
+</ul>
+
+<p>All of this with minimum overhead.</p>
+
+<p>What you gain from using Playgrounds:</p>
+
+<ul>
+  <li>Your View Controllers will need to have managed dependencies for Playgrounds to make sense. To be able to load a View Controller in isolation means that it’s well set up for <u>tests</u>.</li>
+</ul>
+
+<p>from the fine gents over at <a href="https://www.pointfree.co/episodes/ep21-playground-driven-development">Point Free</a>. Their video introduces their way of using Playgrounds in their everyday development. This blog series provides some extra tips learnt the hard way in development</p>
+
+<p>And even when it becomes clear, Playgrounds crash and will crash and unfortunately most of the times without any useful debugging information since Playgrounds run using the <a href="https://developer.apple.com/swift/blog/?id=18">Swift REPL</a> (more on this on part 2).</p>
+
+
+  </div></div>
+
+      </section>
+    </main></body>
+</html>
