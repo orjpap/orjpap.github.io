@@ -9,6 +9,11 @@
             <lastmod>2019-06-07T00:00:00+00:00</lastmod>
             <priority>1.00</priority>
         </url><url>
+                <loc>/swift/caseiterable/protocols/2022/05/25/Case-Sequencable.html</loc>
+                <lastmod>2022-05-25T21:33:36+03:00</lastmod>
+                <changefreq>weekly</changefreq>
+                <priority>0.80</priority>
+            </url><url>
                 <loc>/swift/userdefaults/ios/protocols/2021/10/10/Load-and-save-a-struct.html</loc>
                 <lastmod>2021-10-10T18:33:36+03:00</lastmod>
                 <changefreq>weekly</changefreq>

@@ -5,6 +5,7 @@ if [[ -z "$1" ]]; then
   exit
 fi
 
+bundle exec jekyll clean
 bundle exec jekyll build
 cd _site
 git checkout -f master
