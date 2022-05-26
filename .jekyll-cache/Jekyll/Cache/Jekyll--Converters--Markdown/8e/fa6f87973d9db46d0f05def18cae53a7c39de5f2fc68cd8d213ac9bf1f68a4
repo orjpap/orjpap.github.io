@@ -1,0 +1,2 @@
+I"k<p>Apple <a href="https://developer.apple.com/videos/play/wwdc2019/510">introduced</a> <strong>AVAudioSourceNode</strong> and <strong>AVAudioSinkNode</strong> in WWDC2019. These two new AVAudio nodes are part of the <a href="https://developer.apple.com/documentation/avfoundation">AVFoundation</a> framework and can be used in macOS 10.15 and iOS 13 onwards.</p>
+:ET

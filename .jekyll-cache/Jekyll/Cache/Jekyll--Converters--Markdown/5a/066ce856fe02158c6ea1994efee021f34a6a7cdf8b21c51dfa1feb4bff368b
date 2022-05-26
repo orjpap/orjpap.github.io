@@ -1,0 +1,115 @@
+I"1=<p>So you are making your first face beautifier<strong>©</strong> app and it’s about time to upload some images to a server. The backend person asks you to do it via a type of HTTP POST request known as <code class="highlighter-rouge">multipart/form-data</code>. Soon you come to realise that <code class="highlighter-rouge">URLSession</code> does not provide you with an out of the box <code class="highlighter-rouge">URLRequest</code> or <code class="highlighter-rouge">DataTask</code> for this specific task, despite the fact that this is a very standard way of uploading data.</p>
+
+<p>And that’s when you reach for <a href="https://github.com/Alamofire/Alamofire">Alamofire</a>.</p>
+
+<p><strong>Or</strong> you can stick with <code class="highlighter-rouge">URLSession</code> and make your own <code class="highlighter-rouge">MultipartFormDataRequest</code></p>
+
+<p>It works like this:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">func</span> <span class="nf">uploadImage</span><span class="p">(</span><span class="nv">imageData</span><span class="p">:</span> <span class="kt">Data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">MultipartFormDataRequest</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://server.com/uploadPicture"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="nf">addDataField</span><span class="p">(</span><span class="nv">named</span><span class="p">:</span> <span class="s">"profilePicture"</span><span class="p">,</span> <span class="nv">data</span><span class="p">:</span> <span class="n">imageData</span><span class="p">,</span> <span class="nv">mimeType</span><span class="p">:</span> <span class="s">"img/jpeg"</span><span class="p">)</span>
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">request</span><span class="p">,</span> <span class="nv">completionHandler</span><span class="p">:</span> <span class="p">{</span>
+        <span class="o">...</span>
+    <span class="p">})</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">MultipartFormDataRequest</code> is very similar to a <code class="highlighter-rouge">URLRequest</code> in that it is initialised by a URL. The URL endpoint that you will be sending data to.</p>
+
+<p>Use <code class="highlighter-rouge">addTextField</code> to send text and <code class="highlighter-rouge">addDataField</code> to send anything that can be converted to <code class="highlighter-rouge">Data</code> (images, audio, Grand Theft Auto 2 savefiles, you name it)</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">MultipartFormDataRequest</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="k">let</span> <span class="nv">boundary</span><span class="p">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="kt">UUID</span><span class="p">()</span><span class="o">.</span><span class="n">uuidString</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">httpBody</span> <span class="o">=</span> <span class="kt">NSMutableData</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span>
+
+    <span class="nf">init</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">addTextField</span><span class="p">(</span><span class="n">named</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">httpBody</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">textFormField</span><span class="p">(</span><span class="nv">named</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="n">value</span><span class="p">))</span>
+    <span class="p">}</span>
+
+    <span class="kd">private</span> <span class="kd">func</span> <span class="nf">textFormField</span><span class="p">(</span><span class="n">named</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">String</span> <span class="p">{</span>
+        <span class="k">var</span> <span class="nv">fieldString</span> <span class="o">=</span> <span class="s">"--</span><span class="se">\(</span><span class="n">boundary</span><span class="se">)\r\n</span><span class="s">"</span>
+        <span class="n">fieldString</span> <span class="o">+=</span> <span class="s">"Content-Disposition: form-data; name=</span><span class="se">\"\(</span><span class="n">name</span><span class="se">)\"\r\n</span><span class="s">"</span>
+        <span class="n">fieldString</span> <span class="o">+=</span> <span class="s">"Content-Type: text/plain; charset=ISO-8859-1</span><span class="se">\r\n</span><span class="s">"</span>
+        <span class="n">fieldString</span> <span class="o">+=</span> <span class="s">"Content-Transfer-Encoding: 8bit</span><span class="se">\r\n</span><span class="s">"</span>
+        <span class="n">fieldString</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\r\n</span><span class="s">"</span>
+        <span class="n">fieldString</span> <span class="o">+=</span> <span class="s">"</span><span class="se">\(</span><span class="n">value</span><span class="se">)\r\n</span><span class="s">"</span>
+
+        <span class="k">return</span> <span class="n">fieldString</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">addDataField</span><span class="p">(</span><span class="n">named</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span> <span class="nv">mimeType</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">httpBody</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">dataFormField</span><span class="p">(</span><span class="nv">named</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">mimeType</span><span class="p">:</span> <span class="n">mimeType</span><span class="p">))</span>
+    <span class="p">}</span>
+
+    <span class="kd">private</span> <span class="kd">func</span> <span class="nf">dataFormField</span><span class="p">(</span><span class="n">named</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+                               <span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span>
+                               <span class="nv">mimeType</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Data</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">fieldData</span> <span class="o">=</span> <span class="kt">NSMutableData</span><span class="p">()</span>
+
+        <span class="n">fieldData</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="s">"--</span><span class="se">\(</span><span class="n">boundary</span><span class="se">)\r\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">fieldData</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="s">"Content-Disposition: form-data; name=</span><span class="se">\"\(</span><span class="n">name</span><span class="se">)\"\r\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">fieldData</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="s">"Content-Type: </span><span class="se">\(</span><span class="n">mimeType</span><span class="se">)\r\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">fieldData</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="s">"</span><span class="se">\r\n</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">fieldData</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">fieldData</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="s">"</span><span class="se">\r\n</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fieldData</span> <span class="k">as</span> <span class="kt">Data</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">NSMutableData</span> <span class="p">{</span>
+  <span class="kd">func</span> <span class="nf">append</span><span class="p">(</span><span class="n">_</span> <span class="nv">string</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">using</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">self</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You also need a function to convert a <code class="highlighter-rouge">MultipartFormDataRequest</code> to a <code class="highlighter-rouge">URLRequest</code> in order to be able to create <code class="highlighter-rouge">URLSessionDataTasks</code></p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">func</span> <span class="nf">asURLRequest</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">URLRequest</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">request</span> <span class="o">=</span> <span class="kt">URLRequest</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+
+    <span class="n">request</span><span class="o">.</span><span class="n">httpMethod</span> <span class="o">=</span> <span class="s">"POST"</span>
+    <span class="n">request</span><span class="o">.</span><span class="nf">setValue</span><span class="p">(</span><span class="s">"multipart/form-data; boundary=</span><span class="se">\(</span><span class="n">boundary</span><span class="se">)</span><span class="s">"</span><span class="p">,</span> <span class="nv">forHTTPHeaderField</span><span class="p">:</span> <span class="s">"Content-Type"</span><span class="p">)</span>
+
+    <span class="n">httpBody</span><span class="o">.</span><span class="nf">appendString</span><span class="p">(</span><span class="s">"--</span><span class="se">\(</span><span class="n">boundary</span><span class="se">)</span><span class="s">--"</span><span class="p">)</span>
+    <span class="n">request</span><span class="o">.</span><span class="n">httpBody</span> <span class="o">=</span> <span class="n">httpBody</span> <span class="k">as</span> <span class="kt">Data</span>
+    <span class="k">return</span> <span class="n">request</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Bonus round:</p>
+
+<p>A handy <code class="highlighter-rouge">URLSession</code> extension. You can also make this an upload task, or use background sessions etc.</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">URLSession</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">dataTask</span><span class="p">(</span><span class="n">with</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">MultipartFormDataRequest</span><span class="p">,</span>
+                  <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Data</span><span class="p">?,</span> <span class="kt">URLResponse</span><span class="p">?,</span> <span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span>
+    <span class="o">-&gt;</span> <span class="kt">URLSessionDataTask</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="nf">asURLRequest</span><span class="p">(),</span> <span class="nv">completionHandler</span><span class="p">:</span> <span class="n">completionHandler</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And this is it. You can now upload your image to the server. A very good example of how simple (or scary) HTTP can be.</p>
+
+<p>I didn’t go into much detail about the HTTP specifics because:</p>
+
+<ol>
+  <li>This is a sort of tl;dr blog post where I’m sharing some (I hope) useful code with you</li>
+  <li>Donny Wals has done an excellent job at explaining this in <a href="https://www.donnywals.com/uploading-images-and-forms-to-a-server-using-urlsession/">his blog post</a></li>
+  <li>You can read about it <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST">here</a></li>
+</ol>
+
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> or tweet to me on <a href="https://twitter.com/orjpap">Twitter</a> for tips, feedback, opinions.</p>
+
+<p>Thank you for reading!</p>
+:ET

@@ -1,0 +1,164 @@
+I"�1<p>Build configurations are useful for a handful of reasons. If you are developing an app that’s currently in production, chances are you are switching from your production API endpoints to some kind of <strong>test environment</strong> endpoints for development. Of course you can do the “comment/uncomment URL constants” dance everytime you need to <strong>switch environments</strong>, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable.</p>
+
+<p>Take <strong>automated builds</strong> for example, be it custom nightly build scripts or some ultra-fancy CI pipeline. The number one rule of automated build is that you have to be able to produce a build for your project with a <em>“single command”</em>. Which is not the case if you need to comment/uncomment lines every time you build in order to point to the correct environment.</p>
+
+<p>Unfortunately (at the time of writing this post) the way to set up build configurations in Xcode is not very straightforward and it certainly does not feel as user friendly as other Xcode features. But let’s dive into it.</p>
+
+<h2 id="create-a-configuration-file">Create a Configuration File</h2>
+
+<p>Go to <strong>File -&gt; New -&gt; File</strong> (or cmd + N) and select the <strong>“Configuration Settings File”</strong> template.</p>
+
+<p>A Configuration Settings File (a file with a <code class="highlighter-rouge">.xcconfig</code> file extension) is a plain text file that defines and overrides the <a href="https://help.apple.com/xcode/mac/11.4/#/dev382dac089">build settings</a> for a particular build configuration of a project or target.</p>
+
+<p>We’ll create one file for Production, called <strong>Production.xcconfig</strong> and another one for Development called… you guessed it, <strong>Development.xcconfig</strong></p>
+
+<h2 id="define-build-variables">Define <strong>build variables</strong></h2>
+
+<p>Let’s say that we want to be able to configure a backend endpoint and the app’s display name.</p>
+
+<p>We can add the following to Production.xcconfig:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BACKEND_URL <span class="o">=</span> https:/<span class="si">$()</span>/my.production.api/v1
+APP_NAME <span class="o">=</span> Production
+</code></pre></div></div>
+
+<p>and Development.xcconfig</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BACKEND_URL <span class="o">=</span> https:/<span class="si">$()</span>/my.test.api/v1
+APP_NAME <span class="o">=</span> Development
+</code></pre></div></div>
+
+<p>$() denotes an <strong>empty variable substitution</strong>. It’s used in order to escape the double dash so that the part following it is not treated as a comment. A minor annoyance, but quite handy when you know it!</p>
+
+<p>Another way to go about customising <u>existing</u> target build settings is to override settings such as PRODUCT_NAME. I do not prefer this approach since dealing with build setting levels and inheritance can be a tedious. Instead, I use only new variable names and assign them to the corresponding values in info.plist (more on that later)</p>
+
+<h2 id="create-new-build-configurations">Create New Build Configurations</h2>
+
+<p>Press the “+” icon and select which basic configuration you want to duplicate, release or debug in this case. I will go for release for Production and debug for Development.</p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/1-7397814.png" alt="1-7397814" /></p>
+
+<p>Then select which configuration file this build configuration is based on. You can define this for the whole project or for specific targets.</p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/2.png" alt="2" /></p>
+
+<h2 id="assign-build-configurations">Assign Build Configurations</h2>
+
+<p>Now if we navigate to <strong>“Edit Scheme”</strong> for the current scheme, our just defined build configurations are avaiable to select for the different actions.</p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/3.png" alt="3" /></p>
+
+<p>If it wasn’t for <strong>cocoapods</strong> our project would build and run right now, but we’ll deal with that later. First let’s make some custom schemes so that we can easily switch between the various build configurations.</p>
+
+<h2 id="create-custom-schemes">Create Custom Schemes</h2>
+
+<p>I usually delete (select and click on the “-“ icon) the default scheme and create new ones for each configuration. From the “manage schemes” menu, let’s create two new schemes named <strong>Production</strong> and <strong>Development</strong> using the default target. Don’t forget to edit the schemes to run the corresponding build configuration on <u>Run</u></p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/4.png" alt="4" /></p>
+
+<h2 id="cocoapods">Cocoapods</h2>
+
+<p><em>If you are not using cocoapods you can skip this section.</em></p>
+
+<p>In order to make cocoapods integrate nicely with our custom build configurations we need to:</p>
+
+<ol>
+  <li>
+    <p><strong>Add custom build configurations to PodFile</strong></p>
+
+    <p>Specify where your build configuration is derived from so that Cocoapods can create its own build configuration for the project’s dependencies</p>
+
+    <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">project 'BuildConfigurationsTutorial', 'Production' =&gt; :release, 'Development' =&gt; :debug</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Run pod install from the root of your project</strong></p>
+
+    <p>Open up a terminal in the root directory of your project and run:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nv">$:</span> pod <span class="nb">install</span>
+</code></pre></div>    </div>
+
+    <p>Cocoapods will create its own .xcconfig files located in the <strong>/Pods/Targets Support Files/&lt;Project Name&gt;/</strong> folder of your workspace. One for each build configuration in the project.</p>
+  </li>
+  <li>
+    <p><strong>Include the cocoapods build configs in the custom configuration files</strong></p>
+
+    <p>Configuration files can include other .xcconfig files. In Production.xcconfig add:</p>
+
+    <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include "Pods/Target Support Files/Pods-BuildConfigurationsTutorial/Pods-BuildConfigurationsTutorial.production.xcconfig"
+</code></pre></div>    </div>
+
+    <p>And similar for Development.xcconfig</p>
+
+    <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include "Pods/Target Support Files/Pods-BuildConfigurationsTutorial/Pods-BuildConfigurationsTutorial.development.xcconfig"
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="assign-build-variables-to-infoplist">Assign build variables to info.plist</h2>
+
+<p>In the project’s info.plist you can assign build variables as values using variable substituion i.e <strong>$(VARIABLE_NAME)</strong> notation. For the Bundle Name key we can use <strong>$(APP_NAME)</strong> and we can create a new key (right click + add row) named <strong>BACKEND_URL</strong> and assign <strong>$(BACKEND_URL)</strong> to it</p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/5.png" alt="5" /></p>
+
+<h2 id="access-build-variables-from-code">Access build variables from code</h2>
+
+<p>Add the following to a <strong>BuildConfiguration.swift</strong> file in your project:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">enum</span> <span class="kt">BuildConfiguration</span> <span class="p">{</span>
+    <span class="kd">enum</span> <span class="kt">Error</span><span class="p">:</span> <span class="kt">Swift</span><span class="o">.</span><span class="kt">Error</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">missingKey</span><span class="p">,</span> <span class="n">invalidValue</span>
+    <span class="p">}</span>
+
+    <span class="kd">static</span> <span class="kd">func</span> <span class="n">value</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="k">for</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span> <span class="k">where</span> <span class="kt">T</span><span class="p">:</span> <span class="kt">LosslessStringConvertible</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">object</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">object</span><span class="p">(</span><span class="nv">forInfoDictionaryKey</span><span class="p">:</span> <span class="n">key</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">throw</span> <span class="kt">Error</span><span class="o">.</span><span class="n">missingKey</span>
+        <span class="p">}</span>
+
+        <span class="k">switch</span> <span class="n">object</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="k">let</span> <span class="nv">string</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span>
+            <span class="k">guard</span> <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="kt">T</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span> <span class="k">fallthrough</span> <span class="p">}</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">default</span><span class="p">:</span>
+            <span class="k">throw</span> <span class="kt">Error</span><span class="o">.</span><span class="n">invalidValue</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">enum</span> <span class="kt">API</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">backendURL</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span>
+        <span class="k">do</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">try</span> <span class="kt">BuildConfiguration</span><span class="o">.</span><span class="nf">value</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="s">"BACKEND_URL"</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+            <span class="nf">fatalError</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Then anywhere you need to access the backend URL you can access it using the enum static variable</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Text</span><span class="p">(</span><span class="s">"Backend URL: </span><span class="se">\(</span><span class="kt">API</span><span class="o">.</span><span class="n">backendURL</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="build-and-run">Build and Run</h2>
+
+<p>Building the Production scheme:</p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/6.png" alt="6" /></p>
+
+<p>Building the Development scheme:</p>
+
+<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/7.png" alt="7" /></p>
+
+<h2 id="useful-links">Useful Links</h2>
+
+<p><a href="https://github.com/orjpap/XcodeBuildConfigurationsTutorial">Clone the example in Github</a></p>
+
+<p><a href="https://help.apple.com/xcode/#/dev745c5c974">Apple’s Documentation</a></p>
+
+<p><a href="https://pewpewthespells.com/blog/xcconfig_guide.html">The unofficial Guide to XcodeConfig</a></p>
+
+<p><a href="https://nshipster.com/xcconfig/">NSHipster’s Xcode Build Configuration Files</a></p>
+:ET

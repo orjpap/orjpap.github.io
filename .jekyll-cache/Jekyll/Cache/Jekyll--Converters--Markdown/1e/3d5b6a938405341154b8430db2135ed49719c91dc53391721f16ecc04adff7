@@ -1,0 +1,101 @@
+I"r-<p>The user’s defaults database is a key-value store that let’s you persist data across app launches. It is meant to be used to store user preferences. Using the <code class="highlighter-rouge">Codeable</code> protocol and a <code class="highlighter-rouge">JSONEncoder</code> you can very easily convert Swift types to JSON data in order to store them.</p>
+
+<h2 id="saveload-codeable-structs">Save/Load Codeable structs</h2>
+
+<p>To save data into <code class="highlighter-rouge">UserDefaults</code> you must first encode it as JSON, and then save it using a specified key like this:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">Settings</span><span class="p">:</span> <span class="kt">Codeable</span> <span class="p">{</span>
+  <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">userSettings</span> <span class="o">=</span> <span class="kt">Settings</span><span class="p">()</span>
+
+<span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">JSONEncoder</span><span class="p">()</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">encoded</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">userSettings</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span> <span class="nv">forKey</span><span class="p">:</span> <span class="s">"archiveKey"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Then you can load it like this:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="k">let</span> <span class="nv">savedSettingsData</span> <span class="o">=</span> <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">object</span><span class="p">(</span><span class="nv">forKey</span><span class="p">:</span> <span class="s">"archiveKey"</span><span class="p">)</span> <span class="k">as?</span> <span class="kt">Data</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">JSONDecoder</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">loadedSettings</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">Settings</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">savedSettingsData</span><span class="p">)</span> <span class="c1">// Settings?</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="reusability">Reusability</h2>
+
+<p>Using Swift protocols and <a href="https://docs.swift.org/swift-book/LanguageGuide/Protocols.html#ID280">protocol inheritance</a>, we can define a<code class="highlighter-rouge">UserDefaultsPeristable</code> protocol:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">protocol</span> <span class="kt">DefaultInitializable</span> <span class="p">{</span>
+  <span class="nf">init</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">protocol</span> <span class="kt">UserDefaultsPeristable</span><span class="p">:</span> <span class="kt">Codable</span><span class="p">,</span> <span class="kt">DefaultInitializable</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span><span class="k">get</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We also defined another protocol called <code class="highlighter-rouge">DefaultInitializable</code> for types than can be initialized with a default value using a default initializer. The default value will be used in cases where we’re looking for the specific type in <code class="highlighter-rouge">UserDefaults</code> and it does not exist.</p>
+
+<p>In order to provide a default implementation of <code class="highlighter-rouge">save</code> and <code class="highlighter-rouge">load</code> functions we will also create a <code class="highlighter-rouge">UserDefaultsPersister</code>:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">UserDefaultsPersister</span><span class="o">&lt;</span><span class="kt">A</span><span class="p">:</span> <span class="kt">UserDefaultsPeristable</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="kd">func</span> <span class="nf">save</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">A</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">JSONEncoder</span><span class="p">()</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">encoded</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="n">encoded</span><span class="p">,</span> <span class="nv">forKey</span><span class="p">:</span> <span class="kt">A</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">static</span> <span class="kd">func</span> <span class="nf">load</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">A</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">savedSettingsData</span> <span class="o">=</span> <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">object</span><span class="p">(</span><span class="nv">forKey</span><span class="p">:</span> <span class="kt">A</span><span class="o">.</span><span class="n">key</span><span class="p">)</span> <span class="k">as?</span> <span class="kt">Data</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kt">A</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="k">let</span> <span class="nv">decoder</span> <span class="o">=</span> <span class="kt">JSONDecoder</span><span class="p">()</span>
+        <span class="k">let</span> <span class="nv">loadedSettings</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">A</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="n">savedSettingsData</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">loadedSettings</span> <span class="p">??</span> <span class="kt">A</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And provide the default implementations for <code class="highlighter-rouge">UserDefaultsPersistable</code> protocol:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">extension</span> <span class="kt">UserDefaultsPeristable</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">save</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kt">UserDefaultsPersister</span><span class="o">.</span><span class="nf">save</span><span class="p">(</span><span class="k">self</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="kd">static</span> <span class="kd">func</span> <span class="nf">load</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">UserDefaultsPersister</span><span class="o">.</span><span class="nf">load</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="usage">Usage</h2>
+
+<p>For example, if you want to persist your app’s Audio settings:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">AudioPreferences</span><span class="p">:</span> <span class="kt">UserDefaultsPeristable</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">key</span> <span class="o">=</span> <span class="s">"userAudioPreferences"</span>
+    <span class="k">var</span> <span class="nv">volume</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1">// default value</span>
+    <span class="k">var</span> <span class="nv">bass</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="k">var</span> <span class="nv">treble</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="k">var</span> <span class="nv">quality</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="p">}</span>
+
+<span class="k">var</span> <span class="nv">audioPreferences</span> <span class="o">=</span> <span class="kt">AudioPreferences</span><span class="o">.</span><span class="nf">load</span><span class="p">()</span>
+
+<span class="c1">// user modifies volume</span>
+<span class="n">audioPreferences</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">audioPreferences</span><span class="o">.</span><span class="nf">save</span><span class="p">()</span> <span class="c1">// Audio preferences are saved in user defaults</span>
+</code></pre></div></div>
+
+<p>Declaring a type to be <code class="highlighter-rouge">UserDefaultsPersistable</code> allows you to easily store it in <code class="highlighter-rouge">UserDefaults</code> by only specifying a key. Obviously with this approach you can’t store more than one instance of the same type but when it comes to storing user preferences this is a safety mechanism rather than a limitation.</p>
+
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> or tweet to me on <a href="https://twitter.com/orjpap">Twitter</a> for tips, feedback, opinions.</p>
+
+<p>Thank you for reading!</p>
+:ET

@@ -1,0 +1,2 @@
+I"i<p>The user’s defaults database is a key-value store that let’s you persist data across app launches. It is meant to be used to store user preferences. Using the <code class="highlighter-rouge">Codeable</code> protocol and a <code class="highlighter-rouge">JSONEncoder</code> you can very easily convert Swift types to JSON data in order to store them.</p>
+:ET

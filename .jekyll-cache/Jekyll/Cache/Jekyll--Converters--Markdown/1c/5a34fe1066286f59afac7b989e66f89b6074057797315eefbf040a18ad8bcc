@@ -1,0 +1,2 @@
+I"Œ<p>Enums are often used to model states. If we want to move to the next state (in order of declaration) we have to do the switch dance:</p>
+:ET

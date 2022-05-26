@@ -1,0 +1,107 @@
+I"h <p>Reading through last week’s <a href="https://iosdevweekly.com">iOSDevWeekly</a> I came across <a href="https://github.com/SwiftDocOrg/DocTest?utm_campaign=iOS%2BDev%2BWeekly&amp;utm_medium=web&amp;utm_source=iOS%2BDev%2BWeekly%2BIssue%2B454">Doctest</a>, an exciting new project that aims to make Swift documentation <strong>testable</strong>.</p>
+
+<p>The idea is, you can run <code class="highlighter-rouge">swift-doctest</code> giving it a bunch of .swift files and then it <strong>evaluates</strong> code blocks in your documentation, returning test results for the given conditions.</p>
+
+<p>It turns out that you can run <code class="highlighter-rouge">swift-doctest</code> on <strong>Markdown</strong> files too. What if, we could inject a nice little <code class="highlighter-rouge">swift-doctest</code> every time jekyll renders our static website? That way we can <strong>test codeblocks</strong> in blog posts and even get it done <strong>automatically on every build</strong>.</p>
+
+<h2 id="install-doctest">Install DocTest</h2>
+
+<p>Via Homebrew:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>brew <span class="nb">install </span>swiftdocorg/formulae/swift-doctest
+</code></pre></div></div>
+
+<p>Or Manually:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>git clone https://github.com/SwiftDocOrg/DocTest
+<span class="nv">$ </span><span class="nb">cd </span>DocTest
+<span class="nv">$ </span>make <span class="nb">install</span>
+</code></pre></div></div>
+
+<h2 id="jekyll-hook">Jekyll Hook</h2>
+
+<p><em>note: these are my first 6 lines of Ruby, please be gentle with me</em></p>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Put this in a file called swift-doctest.rb on a _plugins folder in your blog root foolder</span>
+<span class="no">Jekyll</span><span class="o">::</span><span class="no">Hooks</span><span class="p">.</span><span class="nf">register</span> <span class="ss">:posts</span><span class="p">,</span> <span class="ss">:pre_render</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span>
+	<span class="k">if</span> <span class="n">post</span><span class="p">.</span><span class="nf">data</span><span class="p">[</span><span class="s1">'doctest'</span><span class="p">]</span> <span class="o">==</span> <span class="kp">true</span>
+		<span class="n">value</span> <span class="o">=</span> <span class="sx">%x( echo;echo 'swift-doctest for </span><span class="si">#{</span><span class="n">post</span><span class="p">.</span><span class="nf">path</span><span class="si">}</span><span class="sx">';swift-doctest </span><span class="si">#{</span><span class="n">post</span><span class="p">.</span><span class="nf">path</span><span class="si">}</span><span class="sx">; echo;)</span>
+		<span class="nb">puts</span> <span class="n">value</span>
+	<span class="k">end</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<p>This <a href="https://jekyllrb.com/docs/plugins/hooks/">Jekyl Hook</a> runs every time your site is built, <strong>before</strong> the .md files get rendered to .html files. I put it at this point so that I can do something more sophisticated in the future by probably injecting some html to show me the failed test results.</p>
+
+<p>In order to enable swift-doctest for a post, add <code class="highlighter-rouge">doctest: true</code> to the post’s front matter.</p>
+
+<h2 id="take-it-for-a-spin">Take it for a spin</h2>
+
+<p>Start a codeblock with <strong>```swift doctest</strong> and then, add an annotation in the format <code class="highlighter-rouge">=&gt; (Type) = (Value)</code>, to test the expected type and value of the expression:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">User</span> <span class="p">{</span>
+	<span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">user</span> <span class="o">=</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Foo"</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">anotherUser</span> <span class="o">=</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Bar"</span><span class="p">)</span>
+<span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">anotherUser</span><span class="o">.</span><span class="n">name</span> <span class="c1">// =&gt; Bool = true</span>
+</code></pre></div></div>
+
+<p>Now if you run <code class="highlighter-rouge">bundle exec jekyll serve</code> to build and serve your site, the terminal will print a failed test in the <a href="https://testanything.org">TAP format</a></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+
+swift-doctest <span class="k">for</span> &lt;path_to_your_blog&gt;/_posts/&lt;blog_post_filename&gt;.md
+TAP version 13
+1..2
+not ok 1 - <span class="sb">`</span>user.name <span class="o">==</span> anotherUser.name<span class="sb">`</span> produces <span class="sb">`</span>Bool <span class="o">=</span> <span class="nb">false</span><span class="sb">`</span>, expected <span class="sb">`</span>Bool <span class="o">=</span> <span class="nb">true</span><span class="sb">`</span>
+  <span class="nt">---</span>
+  column: 37
+  file: &lt;path_to_your_blog&gt;/_posts/&lt;blog_post_filename&gt;.md
+  line: 6
+  ...
+  
+...
+</code></pre></div></div>
+
+<p>Nice! If you just change the example to:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">struct</span> <span class="kt">User</span> <span class="p">{</span>
+	<span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">user</span> <span class="o">=</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Foo"</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">anotherUser</span> <span class="o">=</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Bar"</span><span class="p">)</span>
+<span class="n">user</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">anotherUser</span><span class="o">.</span><span class="n">name</span> <span class="c1">// =&gt; Bool = false</span>
+</code></pre></div></div>
+
+<p>And just save the file, you will see:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+
+swift-doctest <span class="k">for</span> &lt;path_to_your_blog&gt;/_posts/&lt;blog_post_filename&gt;.md
+TAP version 13
+1..1
+ok 1 - <span class="sb">`</span>user.name <span class="o">==</span> anotherUser.name<span class="sb">`</span> produces <span class="sb">`</span>Bool <span class="o">=</span> <span class="nb">false</span><span class="sb">`</span>
+  <span class="nt">---</span>
+  column: 36
+  file: &lt;path_to_your_blog&gt;/_posts/&lt;blog_post_filename&gt;.md
+  line: 6
+  ...
+  
+...
+
+</code></pre></div></div>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>That’s all you need in order to enable testing for Swift codeblocks in your Jekyll site!</p>
+
+<p>Keep your eyes peeled for further updates to the very promising <a href="https://github.com/SwiftDocOrg/DocTest?utm_campaign=iOS%2BDev%2BWeekly&amp;utm_medium=web&amp;utm_source=iOS%2BDev%2BWeekly%2BIssue%2B454">Doctest</a> since it’s still on its early days.</p>
+
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> or tweet to me on <a href="https://twitter.com/orjpap">Twitter</a> if you have any additional tips or feedback.</p>
+
+<p>Thanks!</p>
+
+:ET

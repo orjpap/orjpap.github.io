@@ -1,0 +1,81 @@
+I"�<p>Apple <a href="https://developer.apple.com/videos/play/wwdc2019/510">introduced</a> <strong>AVAudioSourceNode</strong> and <strong>AVAudioSinkNode</strong> in WWDC2019. These two new AVAudio nodes are part of the <a href="https://developer.apple.com/documentation/avfoundation">AVFoundation</a> framework and can be used in macOS 10.15 and iOS 13 onwards.</p>
+
+<p>They provide a way to <strong>process input</strong> from an audio device/file, and <strong>generating output</strong> to a device/file, <em>sample by sample</em>.</p>
+
+<p>AVAudioSourceNode <em>sends</em> audio to an AVAudioEngine node. The audio is computed in a callback and can be rendered in real-time or offline modes.</p>
+
+<p>AVAudioSinkNode <em>receives</em> audio from an AVAudioEngine node. The audio is processed in a callback and can be rendered in real-time or offline modes.</p>
+
+<p>The following code outputs five seconds of white noise using an AVAudioSourceNode:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">import</span> <span class="kt">AVFoundation</span>
+
+<span class="kd">func</span> <span class="nf">whiteNoise</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Float</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="kt">Float</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">...</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">whiteNoiseGenerator</span> <span class="o">=</span> <span class="kt">AVAudioSourceNode</span><span class="p">()</span> <span class="p">{</span> <span class="p">(</span><span class="n">silence</span><span class="p">,</span> <span class="n">timeStamp</span><span class="p">,</span> <span class="n">frameCount</span><span class="p">,</span> <span class="n">audioBufferList</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="kt">OSStatus</span> <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">ablPointer</span> <span class="o">=</span> <span class="kt">UnsafeMutableAudioBufferListPointer</span><span class="p">(</span><span class="n">audioBufferList</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..&lt;</span><span class="kt">Int</span><span class="p">(</span><span class="n">frameCount</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="nf">whiteNoise</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">buffer</span> <span class="k">in</span> <span class="n">ablPointer</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">buf</span><span class="p">:</span> <span class="kt">UnsafeMutableBufferPointer</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;</span> <span class="o">=</span> <span class="kt">UnsafeMutableBufferPointer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+            <span class="n">buf</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">noErr</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">engine</span> <span class="o">=</span> <span class="kt">AVAudioEngine</span><span class="p">()</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">attach</span><span class="p">(</span><span class="n">whiteNoiseGenerator</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">connect</span><span class="p">(</span><span class="n">whiteNoiseGenerator</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="n">engine</span><span class="o">.</span><span class="n">mainMixerNode</span><span class="p">,</span> <span class="nv">format</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">mainMixerNode</span><span class="o">.</span><span class="n">outputVolume</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="k">try!</span> <span class="n">engine</span><span class="o">.</span><span class="nf">start</span><span class="p">()</span>
+<span class="nf">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+
+</code></pre></div></div>
+
+<p>Two things might baffle Swift programmers in this example:</p>
+
+<ol>
+  <li>
+    <p><strong>UnsafeMutableAudioBufferListPointer</strong> and <strong>UnsafeMutableBufferPointer</strong>.</p>
+
+    <p>By default, Swift is memory safe: It prevents direct access to memory and makes sure you’ve initialized everything before you use it. But you can also use <em>unsafe Swift</em>, which lets you access memory directly through pointers. In this example we use an UnsafeMutableBufferPointer instance in low level operations to eliminate uniqueness checks and bounds checks. I recommend reading <a href="https://pfandrade.me/blog/unsafe-swift/">Unsafe Swift</a> by Paulo Andrande to get a better understanding of the unsafe side of Swift.</p>
+  </li>
+  <li>
+    <p>The <strong>OSStatus</strong> return type.</p>
+
+    <p>Almost every Apple C API function signals success or failure through their return value, which is of type OSStatus. Any status other than noErr (which is 0) signals an error. You can find more details <a href="https://www.osstatus.com/search/results?platform=all&amp;framework=all&amp;search=">here</a></p>
+  </li>
+</ol>
+
+<h2 id="why-unsafe-swift">Why unsafe Swift?</h2>
+
+<p>First of all unsafe Swift lets you work with <a href="https://codeburst.io/pointers-in-5-minutes-b94f9d1dfdb5">pointers</a> and interoprate with C libraries.</p>
+
+<p>In addition, unsafe Swift can help you gain a performance boost by sacrificing memory safety. The code you write in the AVAudioSourceNode’s block <em>must be realtime compliant</em>. Your callback is called in a real-time thread with a hard deadline. @44,1khz sampling rate with a buffer size of 512 samples gives you ~11ms to complete processing in your callback. If that’s not the case, you get silence. That time limit prohibits:</p>
+
+<ol>
+  <li>Memory Allocations</li>
+  <li>Using Locks</li>
+  <li>Network Requests or any kind of I/O</li>
+  <li>Memory boundary checks/uniqueness checks</li>
+  <li>Checking your Twitter</li>
+</ol>
+
+<p>Check out <a href="https://github.com/apple/swift/blob/master/docs/OptimizationTips.rst">this guide</a> on writing high-performance Swift code.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>AVFoundation really suprised me. It provides a clear, powerful API that can be used to generate audio and I’m looking forward making some stuff with it. I’m wondering how it compares to the Audio Unit impementation performance-wise, or if there’s no difference at all because a core audio implementation is hiding under the hood of the two new AVAudioNodes.</p>
+
+<p>I guess the question now (and pretty much always in time critical systems) is: <em>how far can we go without writing C</em>?</p>
+
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> or tweet to me on <a href="https://twitter.com/orjpap">Twitter</a> if you have any additional tips or feedback.</p>
+
+<p>Thanks!</p>
+:ET
