@@ -9,33 +9,28 @@
             <lastmod>2019-06-07T00:00:00+00:00</lastmod>
             <priority>1.00</priority>
         </url><url>
-                <loc>/swift/caseiterable/protocols/2022/05/25/Case-Sequencable.html</loc>
-                <lastmod>2022-05-25T21:33:36+03:00</lastmod>
+                <loc>/swift/caseiterable/protocols/2022/05/25/casesequencable.html</loc>
+                <lastmod>2022-05-25T18:33:36+03:00</lastmod>
                 <changefreq>weekly</changefreq>
                 <priority>0.80</priority>
             </url><url>
-                <loc>/swift/userdefaults/ios/protocols/2021/10/10/Load-and-save-a-struct.html</loc>
+                <loc>/swift/userdefaults/ios/protocols/2021/10/10/userdefaultspersistable.html</loc>
                 <lastmod>2021-10-10T18:33:36+03:00</lastmod>
                 <changefreq>weekly</changefreq>
                 <priority>0.80</priority>
             </url><url>
-                <loc>/swift/http/ios/urlsession/2021/04/26/Multipart-Form-Requests.html</loc>
+                <loc>/swift/http/ios/urlsession/2021/04/26/multipartFormData.html</loc>
                 <lastmod>2021-04-26T18:33:36+03:00</lastmod>
                 <changefreq>weekly</changefreq>
                 <priority>0.80</priority>
             </url><url>
-                <loc>/swift/xcode/playgrounds/frameworks/2020/12/07/Playground-Driven-Development.html</loc>
-                <lastmod>2020-12-07T06:33:36+02:00</lastmod>
+                <loc>/swift/real-time/audio/avfoundation/2020/06/19/avaudiosourcenode.html</loc>
+                <lastmod>2020-06-19T18:33:36+03:00</lastmod>
                 <changefreq>weekly</changefreq>
                 <priority>0.80</priority>
             </url><url>
-                <loc>/swift/real-time/audio/avfoundation/2020/06/19/avAudioSourceNode.html</loc>
-                <lastmod>2020-06-19T07:33:36+03:00</lastmod>
-                <changefreq>weekly</changefreq>
-                <priority>0.80</priority>
-            </url><url>
-                <loc>/swift/real-time/audio/avfoundation/2020/05/19/processAudio.html</loc>
-                <lastmod>2020-05-19T07:33:36+03:00</lastmod>
+                <loc>/swift/real-time/audio/avfoundation/2020/05/04/processAudio.html</loc>
+                <lastmod>2020-05-04T18:33:36+03:00</lastmod>
                 <changefreq>weekly</changefreq>
                 <priority>0.80</priority>
             </url><url>
