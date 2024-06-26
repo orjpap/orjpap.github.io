@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<script async defer data-domain="orjpap.github.io" src="https://plausible.io/js/plausible.js"></script>
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours</title>
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours | Orestis Papadopoulos</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours" />
+<meta name="author" content="Orestis Papadopoulos" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Two days ago, I set out to create a simple Swift library for real-time audio processing. I was aiming to provide an easy to setup way of processing input from an audio device/file, and generating output to a device/file, sample by sample." />
+<meta property="og:description" content="Two days ago, I set out to create a simple Swift library for real-time audio processing. I was aiming to provide an easy to setup way of processing input from an audio device/file, and generating output to a device/file, sample by sample." />
+<meta property="og:site_name" content="Orestis Papadopoulos" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-05-19T07:33:36+03:00" />
+<script type="application/ld+json">
+{"url":"/swift/real-time/audio/avfoundation/2020/05/19/processAudio.html","author":{"@type":"Person","name":"Orestis Papadopoulos"},"headline":"AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours","description":"Two days ago, I set out to create a simple Swift library for real-time audio processing. I was aiming to provide an easy to setup way of processing input from an audio device/file, and generating output to a device/file, sample by sample.","dateModified":"2020-05-19T07:33:36+03:00","datePublished":"2020-05-19T07:33:36+03:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/swift/real-time/audio/avfoundation/2020/05/19/processAudio.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+</head>
+  <body>
+    <main class="container">
+      <section class="about">
+        <a href="/"><img src="/assets/portfolio.png" alt="Orestis Papadopoulos"></a>
+        <h2 id="title">
+          <a href="/">Orestis Papadopoulos</a>
+        </h2>
+        <p class="tagline">Software, Sound, Swift</p>
+        <ul class="social"><a href="https://github.com/orjpap">
+              <li>
+                <i class="icon-github-circled"></i>
+              </li>
+            </a><a href="https://twitter.com/orjpap">
+              <li>
+                <i class="icon-twitter-squared"> </i>
+              </li>
+            </a><a href="mailto:orjpap@gmail.com">
+              <li>
+                <i class="icon-mail"> </i>
+              </li>
+            </a></ul><nav class="navigation">
+            <ul>
+              
+                
+              
+                
+              
+                
+                  <li><a href="/portfolio/portfolio_dev.html"> Portfolio </a></li>
+                
+              
+                
+              
+                
+              
+                
+              
+                
+              
+            </ul>
+          </nav></section>
+      <section class="content">
+        <div class="post-container">
+  <a class="post-link" href="/swift/real-time/audio/avfoundation/2020/05/19/processAudio.html">
+    <h2 class="post-title">AVAudioSourceNode, AVAudioSinkNode or How I Deleted a Repo in Less Than 24 hours</h2>
+  </a>
+  <div class="post-meta">
+    <ul class="post-categories"><li>Swift</li><li>Real-time</li><li>Audio</li><li>AVFoundation</li></ul>
+    <div class="post-date">May 19, 2020</div>
+  </div>
+  <div class="post">
+    <p>Two days ago, I set out to create a simple Swift library for real-time audio processing. I was aiming to provide an easy to setup way of <strong>processing input</strong> from an audio device/file, and <strong>generating output</strong> to a device/file, sample by sample.</p>
+
+<p><a href="https://audiokit.io">AudioKit</a> which is an audio toolkit for iOS, macOS, and tvOS, offers a well documented Swift API but is a big dependency to add to a project if you only need to perform these tasks.</p>
+
+<p>On the other hand, <strong>Core Audio</strong> (initially released in 2003), Apple’s lowest level of abstraction audio framework, clearly states on the front page of its <a href="https://developer.apple.com/documentation/coreaudio">documentation</a>: “Use the Core Audio framework to interact with device’s audio hardware.”. Being so close to hardware comes with a lot of <strong>responsibilities</strong> and responsibilities mean <strong>boilerplate</strong>.</p>
+
+<p>Finally, last time I checked™, <a href="https://developer.apple.com/av-foundation/">AVFoundation</a> was too high-level for these tasks.</p>
+
+<p>So I took a copy of Chris Adamson’s <a href="https://www.amazon.com/Learning-Core-Audio-Hands-Programming/dp/0321636848">Learning Core Audio</a> book off of my dusty electronic bookshelf and started digging into <strong>Audio Units</strong>. An audio unit is a software object that performs some sort of work on a stream of audio, frame by frame<sup id="fnref:2"><a href="#fn:2" class="footnote">1</a></sup>. In order to generate sound we need to fill a buffer with (typically) 32-bit floating point values ranging between -1.0, 1.0. The stream of these values can be used to describe the displacement of the speaker’s cone in time, which then produces displacement in air particles which are perceived by our ears as sounds. This work is executed on a real-time high priority thread and is usually referred to as a render block or process block. For a more in-depth explanation <a href="https://docs.cycling74.com/max5/tutorials/msp-tut/mspdigitalaudio.html">read this.</a></p>
+
+<h2 id="processaudio">ProcessAudio</h2>
+
+<p>The hello world of audio generators is a <strong>sinewave</strong>. But let’s make some <strong>noise</strong> instead. In order to do so using the Audio Units API we need to:</p>
+
+<ol>
+  <li>Find the default output audio component</li>
+  <li>Create a new instance of an audio unit and attach it to the default output</li>
+  <li>Set the renderBlock property of the audio unit to our <strong>noise generator</strong>: A function that returns a random 32-bit floating point number in the closed range [-1.0, 1.0].</li>
+  <li>Start the audio unit</li>
+  <li>Sleep on the current thread so that we can hear the audio being generated on the real-time thread.</li>
+  <li>Clean up the audio unit</li>
+</ol>
+
+<p>Even though the Audio Units API is accessible by Swift, it’s a C API, the setup spans almost 70 lines of code and it looks like <a href="https://www.cocoawithlove.com/2010/10/ios-tone-generator-introduction-to.html">this</a>. So I created a wrapper around this setup code that could be used like so:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">func</span> <span class="nf">whiteNoise</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Float</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="kt">Float</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">...</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">device</span> <span class="o">=</span> <span class="kt">ProcessAudio</span><span class="o">.</span><span class="n">defaultOutput</span>
+<span class="n">device</span><span class="p">?</span><span class="o">.</span><span class="n">connect</span> <span class="p">{</span> <span class="n">_</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">bufferSize</span> <span class="k">in</span>
+    <span class="k">for</span> <span class="n">frameNumber</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..&lt;</span><span class="kt">Int</span><span class="p">(</span><span class="n">bufferSize</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">buffer</span><span class="p">[</span><span class="n">frameNumber</span><span class="p">]</span> <span class="o">=</span> <span class="nf">whiteNoise</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="n">device</span><span class="p">?</span><span class="o">.</span><span class="nf">start</span><span class="p">()</span>
+<span class="nf">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">device</span><span class="p">?</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>And that was the birth of <strong>ProcessAudio</strong>. I turned it into a Swift Package using SPM, wrote some tests, made sure it compiles in both macOS and iOS and took notes on how I can improve and expand the API.</p>
+
+<h2 id="avaudionodes">AVAudioNodes</h2>
+
+<p>Everything was going according to plan, until I found out about <strong>AVAudioSourceNode</strong> and <strong>AVAudioSinkNode</strong> that were <a href="https://developer.apple.com/videos/play/wwdc2019/510">introduced</a> in WWDC2019. These two new AVAudio nodes are part of the <a href="https://developer.apple.com/documentation/avfoundation">AVFoundation</a> framework and can be used in macOS 10.15 and iOS 13 onwards.</p>
+
+<p>AVAudioSourceNode <em>sends</em> audio to an AVAudioEngine node. The audio is computed in a callback and can be rendered in real-time or offline modes.</p>
+
+<p>AVAudioSinkNode <em>receives</em> audio from an AVAudioEngine node. The audio is processed in a callback and can be rendered in real-time or offline modes.</p>
+
+<p>The following code outputs five seconds of white noise using an AVAudioSourceNode:</p>
+
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">import</span> <span class="kt">AVFoundation</span>
+
+<span class="kd">func</span> <span class="nf">whiteNoise</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Float</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="kt">Float</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">...</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">whiteNoiseGenerator</span> <span class="o">=</span> <span class="kt">AVAudioSourceNode</span><span class="p">()</span> <span class="p">{</span> <span class="p">(</span><span class="n">silence</span><span class="p">,</span> <span class="n">timeStamp</span><span class="p">,</span> <span class="n">frameCount</span><span class="p">,</span> <span class="n">audioBufferList</span><span class="p">)</span> <span class="o">-&gt;</span>
+    <span class="kt">OSStatus</span> <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">ablPointer</span> <span class="o">=</span> <span class="kt">UnsafeMutableAudioBufferListPointer</span><span class="p">(</span><span class="n">audioBufferList</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..&lt;</span><span class="kt">Int</span><span class="p">(</span><span class="n">frameCount</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="nf">whiteNoise</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">buffer</span> <span class="k">in</span> <span class="n">ablPointer</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">buf</span><span class="p">:</span> <span class="kt">UnsafeMutableBufferPointer</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;</span> <span class="o">=</span> <span class="kt">UnsafeMutableBufferPointer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+            <span class="n">buf</span><span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">noErr</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">engine</span> <span class="o">=</span> <span class="kt">AVAudioEngine</span><span class="p">()</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">attach</span><span class="p">(</span><span class="n">whiteNoiseGenerator</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">connect</span><span class="p">(</span><span class="n">whiteNoiseGenerator</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="n">engine</span><span class="o">.</span><span class="n">mainMixerNode</span><span class="p">,</span> <span class="nv">format</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="n">mainMixerNode</span><span class="o">.</span><span class="n">outputVolume</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="k">try!</span> <span class="n">engine</span><span class="o">.</span><span class="nf">start</span><span class="p">()</span>
+<span class="nf">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+
+</code></pre></div></div>
+
+<p>The API addresses the exact same points that I wanted to address by making ProcessAudio and it actually looks very similar! How nice.</p>
+
+<p>Two things might baffle Swift programmers in this example:</p>
+
+<ol>
+  <li>
+    <p><strong>UnsafeMutableAudioBufferListPointer</strong> and <strong>UnsafeMutableBufferPointer</strong>.</p>
+
+    <p>By default, Swift is memory safe: It prevents direct access to memory and makes sure you’ve initialized everything before you use it. But you can also use <em>unsafe Swift</em>, which lets you access memory directly through pointers. In this example we use an UnsafeMutableBufferPointer instance in low level operations to eliminate uniqueness checks and bounds checks. I recommend reading <a href="https://pfandrade.me/blog/unsafe-swift/">Unsafe Swift</a> by Paulo Andrande to get a better understanding of the unsafe side of Swift.</p>
+  </li>
+  <li>
+    <p>The <strong>OSStatus</strong> return type.</p>
+
+    <p>Almost every Apple C API function signals success or failure through their return value, which is of type OSStatus. Any status other than noErr (which is 0) signals an error. You can find more details <a href="https://www.osstatus.com/search/results?platform=all&amp;framework=all&amp;search=">here</a></p>
+  </li>
+</ol>
+
+<h2 id="why-unsafe-swift">Why unsafe Swift?</h2>
+
+<p>First of all unsafe Swift lets you work with <a href="https://codeburst.io/pointers-in-5-minutes-b94f9d1dfdb5">pointers</a> and interoprate with C libraries.</p>
+
+<p>In addition, unsafe Swift can help you gain a performance boost by sacrificing memory safety. The code you write in the AVAudioSourceNode’s block <em>must be realtime compliant</em>. Your callback is called in a real-time thread with a hard deadline. @44,1khz sampling rate with a buffer size of 512 samples gives you ~11ms to complete processing in your callback. If that’s not the case, you get silence. That time limit prohibits:</p>
+
+<ol>
+  <li>Memory Allocations</li>
+  <li>Using Locks</li>
+  <li>Network Requests or any kind of I/O</li>
+  <li>Memory boundary checks/uniqueness checks</li>
+  <li>Checking your Twitter</li>
+</ol>
+
+<p>Check out <a href="https://github.com/apple/swift/blob/master/docs/OptimizationTips.rst">this guide</a> on writing high-performance Swift code.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>The only reason for ProcessAudio to exist as a library, would be to be used in older iOS and macOS versions. However, I think I can delete the repo without destroying the world as we know it. I really enjoyed the process and picked up a few lessons along the way.</p>
+
+<p>AVFoundation really suprised me. It provides a clear, powerful API that can be used to generate audio and I’m looking forward making some stuff with it. I’m wondering how it compares to the Audio Unit impementation performance-wise, or if there’s no difference at all because a core audio implementation is hiding under the hood of the two new AVAudioNodes.</p>
+
+<p>I guess the question now (and pretty much always in real time systems) is: <em>how far can we go without writing C</em>?</p>
+
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> or tweet to me on <a href="https://twitter.com/orjpap">Twitter</a> if you have any additional tips or feedback.</p>
+
+<p>Thanks!</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:2">
+      <p>A <em>sample</em> is single numerical value for a single audio channel in an audio stream.. A <em>frame</em> is a collection of time-coincident samples. For instance, a linear PCM stereo sound file has two samples per frame, one for the left channel and one for the right channel.) <a href="#fnref:2" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div></div>
+
+      </section>
+    </main></body>
+</html>
