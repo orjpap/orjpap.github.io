@@ -1,2 +1,0 @@
-I"<p>Two days ago, I set out to create a simple Swift library for real-time audio processing. I was aiming to provide an easy to setup way of <strong>processing input</strong> from an audio device/file, and <strong>generating output</strong> to a device/file, sample by sample.</p>
-:ET

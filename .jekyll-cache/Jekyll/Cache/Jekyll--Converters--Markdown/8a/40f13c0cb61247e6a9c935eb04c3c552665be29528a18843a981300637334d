@@ -1,2 +1,0 @@
-I"<p>Build configurations are useful for a handful of reasons. If you are developing an app that’s currently in production, chances are you are switching from your production API endpoints to some kind of <strong>test environment</strong> endpoints for development. Of course you can do the “comment/uncomment URL constants” dance everytime you need to <strong>switch environments</strong>, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable.</p>
-:ET
