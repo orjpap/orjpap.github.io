@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "AVAudioEffectNode: painless low level audio effects written in Swift"
-date:   2024-09-19 21:03:36 +0530
+date:   2024-09-19 12:03:36 +0530
 categories: Swift Low-level Audio AVFoundation
 doctest: false
 
