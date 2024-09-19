@@ -6,19 +6,21 @@
 <link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/style.css">
 <title>How to Set Up Xcode Build Configurations</title>
-<!-- Begin Jekyll SEO tag v2.6.1 -->
+<!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>How to Set Up Xcode Build Configurations | Orestis Papadopoulos</title>
-<meta name="generator" content="Jekyll v4.0.0" />
+<meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="How to Set Up Xcode Build Configurations" />
 <meta name="author" content="Orestis Papadopoulos" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Build configurations are useful for a handful of reasons. If you are developing an app that&#39;s currently in production, chances are you are switching from your production API endpoints to some kind of test environment endpoints for development. Of course you can do the &quot;comment/uncomment URL constants&quot; dance everytime you need to switch environments, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable." />
-<meta property="og:description" content="Build configurations are useful for a handful of reasons. If you are developing an app that&#39;s currently in production, chances are you are switching from your production API endpoints to some kind of test environment endpoints for development. Of course you can do the &quot;comment/uncomment URL constants&quot; dance everytime you need to switch environments, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable." />
+<meta name="description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
+<meta property="og:description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
 <meta property="og:site_name" content="Orestis Papadopoulos" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-04-20T18:33:36+03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to Set Up Xcode Build Configurations" />
 <script type="application/ld+json">
-{"datePublished":"2020-04-20T18:33:36+03:00","dateModified":"2020-04-20T18:33:36+03:00","mainEntityOfPage":{"@type":"WebPage","@id":"/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes.html"},"url":"/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes.html","author":{"@type":"Person","name":"Orestis Papadopoulos"},"description":"Build configurations are useful for a handful of reasons. If you are developing an app that&#39;s currently in production, chances are you are switching from your production API endpoints to some kind of test environment endpoints for development. Of course you can do the &quot;comment/uncomment URL constants&quot; dance everytime you need to switch environments, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable.","@type":"BlogPosting","headline":"How to Set Up Xcode Build Configurations","@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Orestis Papadopoulos"},"dateModified":"2020-04-20T18:33:36+03:00","datePublished":"2020-04-20T18:33:36+03:00","description":"I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.","headline":"How to Set Up Xcode Build Configurations","mainEntityOfPage":{"@type":"WebPage","@id":"/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes.html"},"url":"/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes.html"}</script>
 <!-- End Jekyll SEO tag -->
 </head>
   <body>
@@ -90,7 +92,7 @@ APP_NAME <span class="o">=</span> Production
 APP_NAME <span class="o">=</span> Development
 </code></pre></div></div>
 <p>$() denotes an <strong>empty variable substitution</strong>. It's used in order to escape the double dash so that the part following it is not treated as a comment. A minor annoyance, but quite handy when you know it!</p>
-<p>Another way to go about customising <u>existing</u> target build settings is to override settings such as PRODUCT_NAME. I do not prefer this approach since dealing with build setting levels and inheritance can be a tedious. Instead, I use only new variable names and assign them to the corresponding values in info.plist (more on that later)</p>
+<p>Another way to go about customising <!-- raw HTML omitted -->existing<!-- raw HTML omitted --> target build settings is to override settings such as PRODUCT_NAME. I do not prefer this approach since dealing with build setting levels and inheritance can be a tedious. Instead, I use only new variable names and assign them to the corresponding values in info.plist (more on that later)</p>
 <h2 id="create-new-build-configurations">Create New Build Configurations</h2>
 <p>Press the &quot;+&quot; icon and select which basic configuration you want to duplicate, release or debug in this case. I will go for release for Production and debug for Development.</p>
 <p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/1-7397814.png" alt="1-7397814" /></p>
@@ -101,7 +103,7 @@ APP_NAME <span class="o">=</span> Development
 <p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/3.png" alt="3" /></p>
 <p>If it wasn't for <strong>cocoapods</strong> our project would build and run right now, but we'll deal with that later. First let's make some custom schemes so that we can easily switch between the various build configurations.</p>
 <h2 id="create-custom-schemes">Create Custom Schemes</h2>
-<p>I usually delete (select and click on the &quot;-&quot; icon) the default scheme and create new ones for each configuration. From the &quot;manage schemes&quot; menu, let's create two new schemes named <strong>Production</strong> and <strong>Development</strong> using the default target. Don't forget to edit the schemes to run the corresponding build configuration on <u>Run</u></p>
+<p>I usually delete (select and click on the &quot;-&quot; icon) the default scheme and create new ones for each configuration. From the &quot;manage schemes&quot; menu, let's create two new schemes named <strong>Production</strong> and <strong>Development</strong> using the default target. Don't forget to edit the schemes to run the corresponding build configuration on <!-- raw HTML omitted -->Run<!-- raw HTML omitted --></p>
 <p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/4.png" alt="4" /></p>
 <h2 id="cocoapods">Cocoapods</h2>
 <p><em>If you are not using cocoapods you can skip this section.</em></p>

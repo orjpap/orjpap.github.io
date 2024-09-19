@@ -23,7 +23,7 @@ git checkout $SOURCE > /dev/null 2>&1
 
 # Check for a clean working directory
 # If the working directory is NOT clean, will stash the changes
-. $scriptdir/stasher.sh
+#. $scriptdir/stasher.sh
 
 # Get the latest commit SHA in SOURCE branch
 last_SHA=( $(git log -n 1 --pretty=oneline) )

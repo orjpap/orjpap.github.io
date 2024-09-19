@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>AVAudioEffectNode: painless low level audio effects written in Swift</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>AVAudioEffectNode: painless low level audio effects written in Swift | Orestis Papadopoulos</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="AVAudioEffectNode: painless low level audio effects written in Swift" />
+<meta name="author" content="Orestis Papadopoulos" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
+<meta property="og:description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
+<meta property="og:site_name" content="Orestis Papadopoulos" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-05-25T18:33:36+03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="AVAudioEffectNode: painless low level audio effects written in Swift" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Orestis Papadopoulos"},"dateModified":"2022-05-25T18:33:36+03:00","datePublished":"2022-05-25T18:33:36+03:00","description":"I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.","headline":"AVAudioEffectNode: painless low level audio effects written in Swift","mainEntityOfPage":{"@type":"WebPage","@id":"/swift/low-level/audio/avfoundation/2022/05/25/avAudioEffectNode.html"},"url":"/swift/low-level/audio/avfoundation/2022/05/25/avAudioEffectNode.html"}</script>
+<!-- End Jekyll SEO tag -->
+</head>
+  <body>
+    <main class="container">
+      <section class="about">
+        <a href="/"><img src="/assets/portfolio.png" alt="Orestis Papadopoulos"></a>
+        <h2 id="title">
+          <a href="/">Orestis Papadopoulos</a>
+        </h2>
+        <p class="tagline">Software, Sound, Swift</p>
+        <ul class="social"><a href="https://github.com/orjpap">
+              <li>
+                <i class="icon-github-circled"></i>
+              </li>
+            </a><a href="https://twitter.com/OrestisPapadop8">
+              <li>
+                <i class="icon-twitter-squared"> </i>
+              </li>
+            </a><a href="mailto:orjpap@gmail.com">
+              <li>
+                <i class="icon-mail"> </i>
+              </li>
+            </a></ul><nav class="navigation">
+            <ul>
+              
+                
+              
+                
+              
+                
+                  <li><a href="/portfolio/portfolio_dev.html"> Portfolio </a></li>
+                
+              
+                
+              
+                
+              
+                
+              
+                
+              
+            </ul>
+          </nav></section>
+      <section class="content">
+        <div class="post-container">
+  <a class="post-link" href="/swift/low-level/audio/avfoundation/2022/05/25/avAudioEffectNode.html">
+    <h2 class="post-title">AVAudioEffectNode: painless low level audio effects written in Swift</h2>
+  </a>
+  <div class="post-meta">
+    <ul class="post-categories"><li>Swift</li><li>Low-level</li><li>Audio</li><li>AVFoundation</li></ul>
+    <div class="post-date">May 25, 2022</div>
+  </div>
+  <div class="post">
+    <p>In a <a href="https://orjpap.github.io/swift/real-time/audio/avfoundation/2020/06/19/avaudiosourcenode.html">previous post</a>, I covered two AVFoundation nodes that can generate sound or tap into the output of an existing node. If you experiment with them, you'll quickly realize:</p>
+<ol>
+<li><strong>AVAudioSourceNode</strong> has 0 inputs and 1 output.</li>
+<li><strong>AVAudioSinkNode</strong> has 1 input and 0 outputs.</li>
+</ol>
+<p>This means we can't use these nodes to create audio effects directly, since an audio effect needs (at least) 1 input and 1 output.</p>
+<p>For creating audio effects, we typically use Audio Units. The AUv3 standard is built on the App Extensions model, meaning your plug-in is an extension contained within an app. Apple provides examples on how to do this, but they are often full of boilerplate and can be challenging to the uninitiated—where's the fun in that, right?</p>
+<p>And by fun, I mean fun like <a href="https://github.com/alexbw/novocaine">Novocaine</a>, an Objective-C library that &quot;takes the pain out of high-performance audio on iOS and macOS.&quot; Following a similar approach, I'll guide you through the simplest way I’ve found to create a user-friendly API for building audio effects in Swift using <strong>AVFoundation</strong>.</p>
+<h2 id="audiounit-auaudiounit-avaudiounit-send-help">AudioUnit, AUAudioUnit, AVAudioUnit (Send Help!)</h2>
+<p>Now, let's dive into creating our own <code>AVAudioEffectNode</code>. The API should look something like this:</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="nv">myEffectNode</span> <span class="o">=</span> <span class="kt">AVAudioEffectNode</span><span class="p">(</span><span class="nv">renderBlock</span><span class="p">:</span> <span class="p">{</span> <span class="o">--</span> <span class="n">our</span> <span class="n">render</span> <span class="n">block</span> <span class="o">--</span><span class="p">})</span>
+</code></pre></div></div>
+<p>Since we’re using <strong>AVFoundation</strong>, we need to create an <code>AVAudioNode</code> that can attach to the engine. This is where <code>AVAudioUnit</code> comes in, acting as a wrapper for Audio Units within <strong>AVFoundation</strong>. There are specialized subclasses like <code>AVAudioUnitEffect</code>, which we’ll be using later.</p>
+<p>If you're new to this, a good starting point is the <code>AUComponent.h</code> header file in Xcode (just Cmd+Click on <code>AudioUnit</code> to access it). Here’s a quick summary:</p>
+<ol>
+<li>
+<p>Audio Units contain render blocks that handle the audio processing.</p>
+</li>
+<li>
+<p>You create your own Audio Unit by subclassing <code>AUAudioUnit</code> (since <code>AudioUnit</code> is just a typealias).</p>
+</li>
+<li>
+<p>An <code>AudioComponentDescription</code> is used to describe the unit, which is later instantiated.</p>
+</li>
+</ol>
+<h3 id="audiocomponentdescription">AudioComponentDescription</h3>
+<p>Here's how to define an <strong>AudioComponentDescription</strong> for our custom effect:</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">import</span> <span class="kt">AVFoundation</span>
+
+<span class="kd">extension</span> <span class="kt">AudioComponentDescription</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">AVAudioEffectNodeAudioUnit</span> <span class="o">=</span> <span class="kt">AudioComponentDescription</span><span class="p">(</span>
+        <span class="nv">componentType</span><span class="p">:</span> <span class="n">kAudioUnitType_Effect</span><span class="p">,</span>
+        <span class="nv">componentSubType</span><span class="p">:</span> <span class="nf">fourCharCodeFrom</span><span class="p">(</span><span class="s">"avae"</span><span class="p">),</span> <span class="c1">// provide your own</span>
+        <span class="nv">componentManufacturer</span><span class="p">:</span> <span class="nf">fourCharCodeFrom</span><span class="p">(</span><span class="s">"orjp"</span><span class="p">),</span> <span class="c1">// provide your own</span>
+        <span class="nv">componentFlags</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="nv">componentFlagsMask</span><span class="p">:</span> <span class="mi">0</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">fourCharCodeFrom</span><span class="p">(</span><span class="n">_</span> <span class="nv">string</span> <span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">FourCharCode</span> <span class="p">{</span>
+    <span class="nf">assert</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s">"String length must be 4"</span><span class="p">)</span>
+    <span class="k">var</span> <span class="nv">result</span> <span class="p">:</span> <span class="kt">FourCharCode</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="k">in</span> <span class="n">string</span><span class="o">.</span><span class="n">utf16</span> <span class="p">{</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">result</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="kt">FourCharCode</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>In this example, we specify the <code>componentType</code> as <code>kAudioUnitType_Effect</code> because we’re building an effect. You also need to define custom four-character codes for <code>SubType</code> and <code>Manufacturer</code>. I’ve added a helper function to simplify that.</p>
+<blockquote>
+<p><strong>Note:</strong> If you're debugging a macOS app and encounter the error <strong>Code=-3000 &quot;invalidComponentID&quot;</strong>, set the <code>componentFlags</code> to <code>AudioComponentFlags.sandboxSafe.rawValue</code>.</p>
+</blockquote>
+<h3 id="custom-auaudiounit">Custom AUAudioUnit</h3>
+<p>Next, we subclass <code>AUAudioUnit</code> to create <code>AVAudioEffectNodeAudioUnit</code>, this is our custom Audio Unit:</p>
+<ol>
+<li>We’ll need to override the <code>internalRenderBlock</code> to pass in our custom render logic.</li>
+<li>We’ll also need to define one input and one output bus by overriding <code>inputBusses</code> and <code>outputBusses</code>.</li>
+</ol>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="kt">AVAudioEffectNodeAudioUnit</span><span class="p">:</span> <span class="kt">AUAudioUnit</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">inputBus</span><span class="p">:</span> <span class="kt">AUAudioUnitBus</span>
+    <span class="k">let</span> <span class="nv">outputBus</span><span class="p">:</span> <span class="kt">AUAudioUnitBus</span>
+
+    <span class="k">var</span> <span class="nv">_internalRenderBlock</span><span class="p">:</span> <span class="kt">AUInternalRenderBlock</span>
+
+    <span class="kd">public</span> <span class="k">override</span> <span class="nf">init</span><span class="p">(</span>
+        <span class="nv">componentDescription</span><span class="p">:</span> <span class="kt">AudioComponentDescription</span><span class="p">,</span>
+        <span class="nv">options</span><span class="p">:</span> <span class="kt">AudioComponentInstantiationOptions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">audioFormat</span> <span class="o">=</span> <span class="kt">AVAudioFormat</span><span class="p">(</span><span class="nv">standardFormatWithSampleRate</span><span class="p">:</span> <span class="mi">44100</span><span class="p">,</span> <span class="nv">channels</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span><span class="o">!</span>
+
+        <span class="n">inputBus</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">AUAudioUnitBus</span><span class="p">(</span><span class="nv">format</span><span class="p">:</span> <span class="n">audioFormat</span><span class="p">)</span>
+        <span class="n">outputBus</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">AUAudioUnitBus</span><span class="p">(</span><span class="nv">format</span><span class="p">:</span> <span class="n">audioFormat</span><span class="p">)</span>
+
+        <span class="n">_internalRenderBlock</span> <span class="o">=</span> <span class="p">{</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="k">in</span>
+            <span class="k">return</span> <span class="n">kAudioUnitErr_Uninitialized</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span> <span class="k">super</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">componentDescription</span><span class="p">:</span> <span class="n">componentDescription</span><span class="p">,</span> <span class="nv">options</span><span class="p">:</span> <span class="n">options</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="k">override</span> <span class="k">var</span> <span class="nv">inputBusses</span><span class="p">:</span> <span class="kt">AUAudioUnitBusArray</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">AUAudioUnitBusArray</span><span class="p">(</span><span class="nv">audioUnit</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span> <span class="nv">busType</span><span class="p">:</span> <span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="nv">busses</span><span class="p">:</span> <span class="p">[</span><span class="n">inputBus</span><span class="p">])</span>
+    <span class="p">}</span>
+
+
+    <span class="kd">public</span> <span class="k">override</span> <span class="k">var</span> <span class="nv">outputBusses</span><span class="p">:</span> <span class="kt">AUAudioUnitBusArray</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">AUAudioUnitBusArray</span><span class="p">(</span><span class="nv">audioUnit</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span> <span class="nv">busType</span><span class="p">:</span> <span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="nv">busses</span><span class="p">:</span> <span class="p">[</span><span class="n">outputBus</span><span class="p">])</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="k">override</span> <span class="k">var</span> <span class="nv">internalRenderBlock</span><span class="p">:</span> <span class="kt">AUInternalRenderBlock</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">_internalRenderBlock</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+<h3 id="time-for-the-glue">Time for the glue.</h3>
+<p>Now that we’ve created the core, let’s glue everything together by creating an <code>AVAudioEffectNode</code> class. This will inherit from <code>AVAudioUnitEffect</code>, and we’ll write a convenience initializer that allows us to pass in a render block—much like the <code>AVAudioSourceNode</code> API.</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="kt">AVAudioEffectNode</span><span class="p">:</span> <span class="kt">AVAudioUnitEffect</span> <span class="p">{</span>
+    <span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nv">renderBlock</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt">AUInternalRenderBlock</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">AUAudioUnit</span><span class="o">.</span><span class="nf">registerSubclass</span><span class="p">(</span><span class="kt">AVAudioEffectNodeAudioUnit</span><span class="o">.</span><span class="k">self</span><span class="p">,</span>
+                                     <span class="nv">as</span><span class="p">:</span> <span class="o">.</span><span class="kt">AVAudioEffectNodeAudioUnit</span><span class="p">,</span>
+                                     <span class="nv">name</span><span class="p">:</span> <span class="s">"AVAudioEffectNode"</span><span class="p">,</span>
+                                     <span class="nv">version</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">self</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">audioComponentDescription</span><span class="p">:</span> <span class="o">.</span><span class="kt">AVAudioEffectNodeAudioUnit</span><span class="p">)</span>
+
+        <span class="k">let</span> <span class="nv">audioEffectAudioUnit</span> <span class="o">=</span> <span class="k">self</span><span class="o">.</span><span class="n">auAudioUnit</span> <span class="k">as!</span> <span class="kt">AVAudioEffectNodeAudioUnit</span>
+        <span class="n">audioEffectAudioUnit</span><span class="o">.</span><span class="n">_internalRenderBlock</span> <span class="o">=</span> <span class="n">renderBlock</span>
+	 <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<ol>
+<li>First, we register our custom <code>AUAudioUnit</code> using the <strong>AudioComponentDescription</strong> we defined earlier.</li>
+<li>Next, we initialize the <code>AVAudioUnitEffect</code> using its inherited initializer.</li>
+<li>Finally, we retrieve the <code>auAudioUnit</code>, cast it to our custom subclass, and pass the render block.</li>
+</ol>
+<h2 id="example-symmetrical-clipping-effect">Example: Symmetrical Clipping Effect</h2>
+<p>Here’s an example of how to implement a <strong>symmetrical clipping</strong> effect using <code>AVAudioEffectNode</code>. Symmetrical clipping is commonly used in overdrive simulations to clip both positive and negative waveform peaks evenly.</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">import</span> <span class="kt">AVFoundation</span>
+
+<span class="k">let</span> <span class="nv">symClipThreshold</span><span class="p">:</span> <span class="kt">Float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="o">/</span><span class="mf">3.0</span> <span class="c1">// higher denominator &gt; more clipping</span>
+
+<span class="k">let</span> <span class="nv">symClipNode</span> <span class="o">=</span> <span class="kt">AVAudioEffectNode</span><span class="p">(</span><span class="nv">renderBlock</span><span class="p">:</span> <span class="p">{</span> <span class="n">actionFlags</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">frameCount</span><span class="p">,</span> <span class="n">outputBusNumber</span><span class="p">,</span> <span class="n">outputData</span><span class="p">,</span> <span class="n">renderEvent</span><span class="p">,</span> <span class="n">pullInputBlock</span> <span class="o">-&gt;</span> <span class="kt">AUAudioUnitStatus</span> <span class="k">in</span>
+
+    <span class="c1">// Pull the audio from the input</span>
+    <span class="k">let</span> <span class="nv">inputStatus</span> <span class="o">=</span> <span class="nf">pullInputBlock</span><span class="p">?(</span><span class="n">actionFlags</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">frameCount</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">outputData</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">inputStatus</span> <span class="o">!=</span> <span class="n">noErr</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">inputStatus</span> <span class="p">??</span> <span class="n">kAudioUnitErr_FailedInitialization</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="nv">ablPointer</span> <span class="o">=</span> <span class="kt">UnsafeMutableAudioBufferListPointer</span><span class="p">(</span><span class="n">outputData</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">buffer</span> <span class="k">in</span> <span class="n">ablPointer</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">input</span> <span class="o">=</span> <span class="kt">UnsafePointer</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">mData</span><span class="o">!.</span><span class="nf">assumingMemoryBound</span><span class="p">(</span><span class="nv">to</span><span class="p">:</span> <span class="kt">Float</span><span class="o">.</span><span class="k">self</span><span class="p">))</span>
+        <span class="k">let</span> <span class="nv">outputBuffer</span> <span class="o">=</span> <span class="kt">UnsafeMutablePointer</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">mData</span><span class="o">!.</span><span class="nf">assumingMemoryBound</span><span class="p">(</span><span class="nv">to</span><span class="p">:</span> <span class="kt">Float</span><span class="o">.</span><span class="k">self</span><span class="p">))</span>
+        <span class="k">let</span> <span class="nv">processed</span> <span class="o">=</span> <span class="nf">symClip</span><span class="p">(</span><span class="nv">input</span><span class="p">:</span> <span class="n">input</span><span class="p">,</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span><span class="p">(</span><span class="n">frameCount</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..&lt;</span><span class="kt">Int</span><span class="p">(</span><span class="n">frameCount</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">outputBuffer</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">processed</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">noErr</span>
+<span class="p">})</span>
+
+<span class="c1">// "Overdrive" simlation with symmetrical clipping from DAFX (2011) translated to Swift</span>
+<span class="c1">// Author: Dutilleux, ZΓΆlzer</span>
+<span class="c1">// Symmetrical clipping clips both positive and negative amplitude peaks of a waveform evenly</span>
+<span class="kd">func</span> <span class="nf">symClip</span><span class="p">(</span><span class="nv">input</span><span class="p">:</span> <span class="kt">UnsafePointer</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;</span><span class="p">,</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Float</span><span class="p">]</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">output</span> <span class="o">=</span> <span class="p">[</span><span class="kt">Float</span><span class="p">](</span><span class="nv">repeating</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nv">count</span><span class="p">:</span> <span class="n">count</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..&lt;</span><span class="n">count</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">x</span> <span class="o">=</span> <span class="n">input</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">symClipThreshold</span> <span class="p">{</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">symClipThreshold</span> <span class="o">&amp;&amp;</span> <span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">symClipThreshold</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span> <span class="o">-</span> <span class="nf">pow</span><span class="p">((</span><span class="mf">2.0</span> <span class="o">-</span> <span class="n">x</span> <span class="o">*</span> <span class="mf">3.0</span><span class="p">),</span> <span class="mf">2.0</span><span class="p">))</span> <span class="o">/</span> <span class="mf">3.0</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">-</span> <span class="nf">pow</span><span class="p">((</span><span class="mf">2.0</span> <span class="o">-</span> <span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.0</span><span class="p">),</span> <span class="mf">2.0</span><span class="p">))</span> <span class="o">/</span> <span class="mf">3.0</span>
+            <span class="p">}</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">symClipThreshold</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">output</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h3 id="putting-the-nodes-together">Putting the Nodes Together</h3>
+<p>You can now connect any kind of <code>AVAudioEngineNode</code> to your shiny new audio effect:</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="nv">engine</span> <span class="o">=</span> <span class="kt">AVAudioEngine</span><span class="p">()</span>
+
+<span class="n">engine</span><span class="o">.</span><span class="nf">attach</span><span class="p">(</span><span class="n">sineWaveNode</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">attach</span><span class="p">(</span><span class="n">symClipNode</span><span class="p">)</span>
+
+<span class="n">engine</span><span class="o">.</span><span class="nf">connect</span><span class="p">(</span><span class="n">sineWaveNode</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="n">symClipNode</span><span class="p">,</span> <span class="nv">format</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">connect</span><span class="p">(</span><span class="n">symClipNode</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="n">engine</span><span class="o">.</span><span class="n">mainMixerNode</span><span class="p">,</span> <span class="nv">format</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+
+<span class="n">engine</span><span class="o">.</span><span class="n">mainMixerNode</span><span class="o">.</span><span class="n">volume</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="k">try!</span> <span class="n">engine</span><span class="o">.</span><span class="nf">start</span><span class="p">()</span>
+<span class="kt">CFRunLoopRun</span><span class="p">()</span>
+<span class="n">engine</span><span class="o">.</span><span class="nf">stop</span><span class="p">()</span>
+
+</code></pre></div></div>
+<h2 id="coda">Coda</h2>
+<p>All in all, combining a source node, sink node, and effect node creates a robust and flexible API for low-level audio processing and generation with AVFoundation. I'm excited to see where AVFoundation is headed and hopeful that future updates will bring even more user-friendly Swift APIs for audio development.</p>
+<p>You can find the <a href="https://github.com/orjpap/AVAudioEffectNode-Example">full example</a> as an Xcode project on my github.</p>
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> for tips, feedback, opinions or sending me your cool audio effects.</p>
+<p>Thank you for reading!</p>
+
+  </div></div>
+
+      </section>
+    </main></body>
+</html>

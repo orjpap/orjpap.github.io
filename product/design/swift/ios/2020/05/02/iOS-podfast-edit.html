@@ -6,19 +6,21 @@
 <link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
 <link rel="stylesheet" href="/assets/css/style.css">
 <title>Podfast: a Podcast Discovery App</title>
-<!-- Begin Jekyll SEO tag v2.6.1 -->
+<!-- Begin Jekyll SEO tag v2.8.0 -->
 <title>Podfast: a Podcast Discovery App | Orestis Papadopoulos</title>
-<meta name="generator" content="Jekyll v4.0.0" />
+<meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="Podfast: a Podcast Discovery App" />
 <meta name="author" content="Orestis Papadopoulos" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="I can clearly recall my mother&#39;s disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me." />
-<meta property="og:description" content="I can clearly recall my mother&#39;s disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me." />
+<meta name="description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
+<meta property="og:description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
 <meta property="og:site_name" content="Orestis Papadopoulos" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-05-02T18:33:36+03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Podfast: a Podcast Discovery App" />
 <script type="application/ld+json">
-{"datePublished":"2020-05-02T18:33:36+03:00","dateModified":"2020-05-02T18:33:36+03:00","mainEntityOfPage":{"@type":"WebPage","@id":"/product/design/swift/ios/2020/05/02/iOS-podfast-edit.html"},"url":"/product/design/swift/ios/2020/05/02/iOS-podfast-edit.html","author":{"@type":"Person","name":"Orestis Papadopoulos"},"description":"I can clearly recall my mother&#39;s disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me.","@type":"BlogPosting","headline":"Podfast: a Podcast Discovery App","@context":"https://schema.org"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Orestis Papadopoulos"},"dateModified":"2020-05-02T18:33:36+03:00","datePublished":"2020-05-02T18:33:36+03:00","description":"I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.","headline":"Podfast: a Podcast Discovery App","mainEntityOfPage":{"@type":"WebPage","@id":"/product/design/swift/ios/2020/05/02/iOS-podfast-edit.html"},"url":"/product/design/swift/ios/2020/05/02/iOS-podfast-edit.html"}</script>
 <!-- End Jekyll SEO tag -->
 </head>
   <body>
@@ -91,27 +93,18 @@
 (b) write code that implements it
 (c) assess the value it adds for the user
 (d) integrate it into the app. That's how I made an iOS app <strong>prototype</strong> pretty quickly, implementing this user story into local podcast audio files and just a <a href="https://developer.apple.com/documentation/uikit/uislider">UISlider</a>.</p>
-<video controls width="320" height="576">
-  <source src="/assets/images/2019-14-20-podfast.assets/podfast_early_prototype.mp4">
-Your browser does not support the video tag.
-</video>
+<!-- raw HTML omitted -->
 <p>My next step was to use some real <strong>data sources</strong>. I turned to <a href="https://rss.itunes.apple.com/en-us">iTunes RSS Feed Generator</a>, a publicly accessible API which returns a <a href="https://rss.itunes.apple.com/api/v1/gr/podcasts/top-podcasts/all/100/explicit.json">JSON file</a> with the Top 100 Podcasts in different regions, regularly updated on an almost weekly basis. After collecting this data I had to jump through some hoops - I won’t bore you with the details - to get the metadata for each podcast (XML RSS feed parsing anyone? 😁) but thankfully, the podcast RSS feed tags are properly standardized in order to get parsed by iTunes, Spotify etc.</p>
 <p>At this point, I realised that the less the app's core logic knows about the <strong>specifics</strong> of the various data sources, the better for the app. To achieve this separation, I spent some weeks researching the most common app architecture patterns and ended up re-writing my hacky/scripty view controller logic by using something very similar to <a href="https://www.objc.io/issues/13-architecture/viper/">Viper</a> and <a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">Uncle Bob's clean architecture</a> but not exactly any of them. For those of you who are interested, you can take a look at the folder called <a href="https://github.com/orjpap/podfast/tree/master/PodFast/Use%20Cases/Discovery">Use Cases</a> and let me know what you think (I’m suspecting I have committed some over-abstraction crimes here). Anyway, my goal behind all this was very clear: I wanted to be able to <strong>switch data sources</strong> on a whim, without having to re-write half of my app. This proved to be very valuable when remote configuration feeding podcast data was added.</p>
 <p>I also noticed that podcasts could be organised <strong>by category</strong> and that was pretty neat, since such a minimal visual cue is not prominent enough to distract the user from <strong>listening</strong>. Finally, I replaced the slider with a <a href="https://developer.apple.com/documentation/uikit/uicollectionview">UICollectionView</a> to display the category names and also wrote some simple collision logic:</p>
-<video controls width="320" height="576">
-  <source src="/assets/images/2019-14-20-podfast.assets/podfast_early_prototype2.mp4">
-Your browser does not support the video tag.
-</video>
+<!-- raw HTML omitted -->
 <p>That was the <strong>prototype</strong> I showed to the visual artist/writer Vasia Bakogianni, also known as <a href="https://www.kroutsef.com">@kroutsef</a> and asked her to work as a <strong>graphic designer</strong> for the app. She took it all in and we got straight to work. After a few interesting conversations, brainstorming sessions and design iterations she came up with the <strong>app icon</strong>:</p>
-<img src="/assets/images/2019-14-20-podfast.assets/podfast_logo.PNG" alt="podfast_logo" style="zoom:50%;" class ="center"/>
+<!-- raw HTML omitted -->
 <p>Vasia has not only worked as a designer for the project, but since she is an avid podcast listener, she has also provided valuable feedback on the user experience, as well as hours of interesting app and non-app related conversations. After taking a <strong>short break</strong>, where we had to work on various other projects, we got back to ‘Podfast’ and decided to push towards the app release by setting a strict release date. Since we’d done a lot of groundwork and the concept had already been solidified, we finalized the <strong>designing</strong> aspect of it shortly after:</p>
 <p><img src="/assets/images/2019-14-20-podfast.assets/design_screenshot.png" alt="design_screenshot" /></p>
 <p>From a software perspective we agreed on a <strong>subset</strong> of features that would be included in the release, a sort of minimum viable product (<strong>MVP</strong>) approach, based on the following principle: before making a significant time and effort investment we have to set out to release the product, deliver it to the users and then channel their input back into the process of development.</p>
 <p>Shortly prior to the big release, I realised that since there is <strong>streaming</strong> involved and the loading time experience ranges from “seemingly instant” to &quot;slower than death caused by a natural cause”, we needed a way to indicate the <strong>buffering state</strong>. We decided to go with something different from the established spinner/loader pattern and use <strong>radio static sounds</strong>. The current, simplified implementation has a static sound sample played when <a href="https://developer.apple.com/documentation/avfoundation/avplayer">AVPlayer</a> is <a href="https://github.com/orjpap/podfast/blob/120ef148529dfffed1151919402ca0022014a85d/PodFast/Use%20Cases/Discovery/AudioPlayer.swift#L118-L188">having a rough time</a> buffering. Of course, there is definitely room for improvement by obviously inserting <strong>procedural sound design</strong> into the concept. Spinners are the ultimate playground for graphic designers, so let's also give sound designers the opportunity to indicate <strong>loading states</strong>.</p>
-<video controls width="320" height="576">
-  <source src="/assets/images/2019-14-20-podfast.assets/streaming_static.mp4">
-Your browser does not support the video tag.
-</video>
+<!-- raw HTML omitted -->
 <p>Over a period of one week and a few micro-features later, some of which are:</p>
 <ol>
 <li>Categories are sorted out by “most listened”</li>
@@ -124,7 +117,7 @@ Your browser does not support the video tag.
 <p><img src="/assets/images/podfast_portfolio_halfsize_15.gif" alt="podfast_gif" /></p>
 <h2 id="where-to-next">Where to next?</h2>
 <p>You can download the app for free from the App Store and give it a try.</p>
-<p><a href="https://apps.apple.com/us/app/podfast/id1507685149?ls=1"><img src="/assets/images/download_on_the_app_store.svg" class="appstoreDownload"></a></p>
+<p><a href="https://apps.apple.com/us/app/podfast/id1507685149?ls=1"><!-- raw HTML omitted --></a></p>
 <p>Our users have already done a great job sharing their feedback with us. We are bound to release an update soon, with improved features that were assimilated thanks to their suggestions. We would also love to hear your own <strong>feedback</strong> on the app <a href="mailto:orjpap@gmail.com">Send us an email</a> or get in touch on Twitter <a href="https://twitter.com/OrestisPapadop8">@orjpap</a>, <a href="https://twitter.com/vasiabakogianni">@kroutsef</a>. Feel free to share with us your favourite podcasts and the category they belong to as well, so we can add them to our collection.</p>
 <p>There is still a lot to learn and improve, so further optimization in the departments of <strong>streaming logic</strong>, <strong>sound design</strong> and <strong>visuals</strong> of the app is inevitable. Besides, we’re planning to introduce the parameter of <strong>locality</strong> mentioned above. Instead of just selecting from the US Top 100 and our curated podcasts, the user will be able to discover podcasts that are popular in their respective country.</p>
 <p>An <strong>Android app</strong> is also in the making by <a href="https://github.com/Pkoutsokeras">Petros Koutsokeras</a></p>
