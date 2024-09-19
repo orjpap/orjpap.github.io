@@ -1,5 +1,4 @@
 ---
-
 layout: post
 title:  "CaseSequencable: Put your enums in order"
 date:   2022-05-25 21:03:36 +0530
