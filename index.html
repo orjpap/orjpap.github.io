@@ -64,7 +64,17 @@
             </ul>
           </nav></section>
       <section class="content">
-        <ul class="posts"><li><a class="post-link" href="/swift/low-level/audio/avfoundation/2024/09/19/avAudioEffectNode.html">
+        <ul class="posts"><li><a class="post-link" href="/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html">
+          <h2 class="post-title">AVAudioEffectNode: Configurable Input-Output</h2>
+        </a>
+        <div class="post-meta">
+          <ul class="post-categories"><li>Swift</li><li>Low-level</li><li>Audio</li><li>AVFoundation</li></ul>
+          <div class="post-date">
+            Dec 1, 2024</div>
+        </div>
+        <div class="post"><p>In my <a href="https://orjpap.github.io/swift/low-level/audio/avfoundation/2024/09/19/avAudioEffectNode.html">previous post</a>, I have come up with a simplistic implementation of an AVAudioEffectNode with a custom render block. At that time, I assumed a fixed setup with two channels and a sample rate of 44,100 Hz. However, a reader recently reached out, asking how to adapt this for an audio effect that converts stereo input to mono output. This inspired me to modify the <code>AVAudioEffectNode</code> class for greater flexibility.</p>
+</div>
+      </li><li><a class="post-link" href="/swift/low-level/audio/avfoundation/2024/09/19/avAudioEffectNode.html">
           <h2 class="post-title">AVAudioEffectNode: painless low level audio effects written in Swift</h2>
         </a>
         <div class="post-meta">

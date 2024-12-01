@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>AVAudioEffectNode: Configurable Input-Output</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>AVAudioEffectNode: Configurable Input-Output | Orestis Papadopoulos</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="AVAudioEffectNode: Configurable Input-Output" />
+<meta name="author" content="Orestis Papadopoulos" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
+<meta property="og:description" content="I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift." />
+<meta property="og:site_name" content="Orestis Papadopoulos" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-12-01T08:33:36+02:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="AVAudioEffectNode: Configurable Input-Output" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Orestis Papadopoulos"},"dateModified":"2024-12-01T08:33:36+02:00","datePublished":"2024-12-01T08:33:36+02:00","description":"I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.","headline":"AVAudioEffectNode: Configurable Input-Output","mainEntityOfPage":{"@type":"WebPage","@id":"/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html"},"url":"/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html"}</script>
+<!-- End Jekyll SEO tag -->
+</head>
+  <body>
+    <main class="container">
+      <section class="about">
+        <a href="/"><img src="/assets/portfolio.png" alt="Orestis Papadopoulos"></a>
+        <h2 id="title">
+          <a href="/">Orestis Papadopoulos</a>
+        </h2>
+        <p class="tagline">Software, Sound, Swift</p>
+        <ul class="social"><a href="https://github.com/orjpap">
+              <li>
+                <i class="icon-github-circled"></i>
+              </li>
+            </a><a href="https://twitter.com/OrestisPapadop8">
+              <li>
+                <i class="icon-twitter-squared"> </i>
+              </li>
+            </a><a href="mailto:orjpap@gmail.com">
+              <li>
+                <i class="icon-mail"> </i>
+              </li>
+            </a></ul><nav class="navigation">
+            <ul>
+              
+                
+              
+                
+              
+                
+                  <li><a href="/portfolio/portfolio_dev.html"> Portfolio </a></li>
+                
+              
+                
+              
+                
+              
+                
+              
+                
+              
+            </ul>
+          </nav></section>
+      <section class="content">
+        <div class="post-container">
+  <a class="post-link" href="/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html">
+    <h2 class="post-title">AVAudioEffectNode: Configurable Input-Output</h2>
+  </a>
+  <div class="post-meta">
+    <ul class="post-categories"><li>Swift</li><li>Low-level</li><li>Audio</li><li>AVFoundation</li></ul>
+    <div class="post-date">Dec 1, 2024</div>
+  </div>
+  <div class="post">
+    <p>In my <a href="https://orjpap.github.io/swift/low-level/audio/avfoundation/2024/09/19/avAudioEffectNode.html">previous post</a>, I have come up with a simplistic implementation of an AVAudioEffectNode with a custom render block. At that time, I assumed a fixed setup with two channels and a sample rate of 44,100 Hz. However, a reader recently reached out, asking how to adapt this for an audio effect that converts stereo input to mono output. This inspired me to modify the <code>AVAudioEffectNode</code> class for greater flexibility.</p>
+<h2 id="key-changes">Key Changes</h2>
+<p>To accommodate different input and output configurations, I made the following updates:</p>
+<ol>
+<li><strong>Dynamic Bus Arrays</strong>: Instead of using fixed input and output busses, I implemented lazy-loaded bus arrays. This allows for more dynamic configuration:</li>
+</ol>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">lazy</span> <span class="k">var</span> <span class="nv">inputBusArray</span><span class="p">:</span> <span class="kt">AUAudioUnitBusArray</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="k">let</span> <span class="nv">defaultAudioFormat</span> <span class="o">=</span> <span class="kt">AVAudioFormat</span><span class="p">(</span><span class="nv">standardFormatWithSampleRate</span><span class="p">:</span> <span class="mi">44100</span><span class="p">,</span> <span class="nv">channels</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span><span class="o">!</span>
+	<span class="k">let</span> <span class="nv">inputBus</span> <span class="o">=</span> <span class="k">try!</span> <span class="kt">AUAudioUnitBus</span><span class="p">(</span><span class="nv">format</span><span class="p">:</span> <span class="n">defaultAudioFormat</span><span class="p">)</span>
+	<span class="k">return</span> <span class="kt">AUAudioUnitBusArray</span><span class="p">(</span><span class="nv">audioUnit</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span> <span class="nv">busType</span><span class="p">:</span> <span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="nv">busses</span><span class="p">:</span> <span class="p">[</span><span class="n">inputBus</span><span class="p">])</span>
+<span class="p">}()</span>
+<span class="kd">private</span> <span class="kd">lazy</span> <span class="k">var</span> <span class="nv">outputBusArray</span><span class="p">:</span> <span class="kt">AUAudioUnitBusArray</span> <span class="o">=</span> <span class="p">{</span>
+	<span class="k">let</span> <span class="nv">defaultAudioFormat</span> <span class="o">=</span> <span class="kt">AVAudioFormat</span><span class="p">(</span><span class="nv">standardFormatWithSampleRate</span><span class="p">:</span> <span class="mi">44100</span><span class="p">,</span> <span class="nv">channels</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span><span class="o">!</span>
+	<span class="k">let</span> <span class="nv">outputBus</span> <span class="o">=</span> <span class="k">try!</span> <span class="kt">AUAudioUnitBus</span><span class="p">(</span><span class="nv">format</span><span class="p">:</span> <span class="n">defaultAudioFormat</span><span class="p">)</span>
+	<span class="k">return</span> <span class="kt">AUAudioUnitBusArray</span><span class="p">(</span><span class="nv">audioUnit</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span> <span class="nv">busType</span><span class="p">:</span> <span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="nv">busses</span><span class="p">:</span> <span class="p">[</span><span class="n">outputBus</span><span class="p">])</span>
+<span class="p">}()</span>
+</code></pre></div></div>
+<ol start="2">
+<li><strong>Overriding Bus Properties</strong> needed for AUV3 implementation</li>
+</ol>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="k">override</span> <span class="k">var</span> <span class="nv">inputBusses</span><span class="p">:</span> <span class="kt">AUAudioUnitBusArray</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="n">inputBusArray</span>
+<span class="p">}</span>
+
+<span class="kd">public</span> <span class="k">override</span> <span class="k">var</span> <span class="nv">outputBusses</span><span class="p">:</span> <span class="kt">AUAudioUnitBusArray</span> <span class="p">{</span>
+	<span class="k">return</span> <span class="n">outputBusArray</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>For the full implementation, check out <a href="https://gist.github.com/orjpap/85a3d1029ff068516a4063d04ea5b8d8">this gist</a>.</p>
+<h2 id="usage">Usage</h2>
+<p>You can now easily change the input and output formats using:</p>
+<ul>
+<li><code>avAudioEffectNode.auAudioUnit.inputBusses.replaceBusses</code></li>
+<li><code>avAudioEffectNode.auAudioUnit.outputBusses.replaceBusses</code></li>
+</ul>
+<p>Here's an example using the symclip node from my <a href="https://github.com/orjpap/AVAudioEffectNode-Example">previous example</a>:</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">symClipNode</span><span class="o">.</span> <span class="nf">inputFormat</span> <span class="p">(</span><span class="nv">forBus</span><span class="p">:</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1">// prints: &lt;AVAudioFormat 0x600002a85180: 2 ch, 44100 Hz, Float32, deinterleaved&gt;</span>
+
+<span class="k">let</span> <span class="nv">audioFormat</span> <span class="o">=</span> <span class="kt">AVAudioFormat</span><span class="p">(</span><span class="nv">standardFormatWithSampleRate</span><span class="p">:</span> <span class="mi">48000</span><span class="p">,</span> <span class="nv">channels</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span><span class="o">!</span>
+<span class="k">let</span> <span class="nv">inputBuss</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">AUAudioUnitBus</span><span class="p">(</span><span class="nv">format</span><span class="p">:</span> <span class="n">audioFormat</span><span class="p">)</span>
+
+<span class="n">symClipNode</span><span class="o">.</span><span class="n">auAudioUnit</span><span class="o">.</span><span class="n">inputBusses</span><span class="o">.</span><span class="nf">replaceBusses</span><span class="p">([</span><span class="n">inputBuss</span><span class="p">])</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">symClipNode</span><span class="o">.</span><span class="nf">inputFormat</span> <span class="p">(</span><span class="nv">forBus</span><span class="p">:</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1">// prints: &lt;AVAudioFormat 0x600002a84d0: 1 ch, 48000 Hz, Float32, deinterleaved&gt;</span>
+</code></pre></div></div>
+<h2 id="bonus-byob-bring-your-own-buffers-input-pulling">Bonus: BYOB (Bring your own buffers) input pulling</h2>
+<p>When the input and output have different buffer counts (2 in and 1 out in our reader's case) you have to BYOB.</p>
+<p>Here's a sane (and not very Swifty) way of doing this:</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="nv">sumNode</span> <span class="o">=</span> <span class="kt">AVAudioEffectNode</span><span class="p">(</span><span class="nv">renderBlock</span><span class="p">:</span> <span class="p">{</span> <span class="n">actionFlags</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">frameCount</span><span class="p">,</span> <span class="n">outputBusNumber</span><span class="p">,</span>
+	<span class="n">outputData</span><span class="p">,</span> <span class="n">renderEvent</span><span class="p">,</span> <span class="n">pullInputBlock</span> <span class="o">-&gt;</span> <span class="kt">AUAudioUnitStatus</span> <span class="k">in</span>
+
+	<span class="k">let</span> <span class="nv">bufferSizeBytes</span> <span class="o">=</span> <span class="kt">MemoryLayout</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;.</span><span class="n">size</span> <span class="o">*</span> <span class="kt">Int</span> <span class="p">(</span><span class="n">frameCount</span><span class="p">)</span>
+	<span class="k">var</span> <span class="nv">inputBufferlist</span> <span class="o">=</span> <span class="kt">AudioBufferList</span><span class="o">.</span><span class="nf">allocate</span><span class="p">(</span><span class="nv">maximumBuffers</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span>
+
+	<span class="n">inputBufferList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kt">AudioBuffer</span> <span class="p">(</span><span class="nv">mNumberChannels</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+									  <span class="nv">mDataByteSize</span><span class="p">:</span> <span class="kt">UInt32</span><span class="p">(</span><span class="n">bufferSizeBytes</span><span class="p">),</span>
+									  <span class="nv">mData</span><span class="p">:</span> <span class="nf">malloc</span><span class="p">(</span><span class="n">bufferSizeBytes</span><span class="p">))</span>
+	<span class="n">inputBufferList</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kt">AudioBuffer</span> <span class="p">(</span><span class="nv">mNumberChannels</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+									  <span class="nv">mDataByteSize</span><span class="p">:</span> <span class="kt">UInt32</span><span class="p">(</span><span class="n">bufferSizeBytes</span><span class="p">),</span>
+									  <span class="nv">mData</span><span class="p">:</span> <span class="nf">malloc</span><span class="p">(</span><span class="n">bufferSizeBytes</span><span class="p">))</span>
+	<span class="c1">// Pull the audio from the input</span>
+	<span class="k">let</span> <span class="nv">inputStatus</span> <span class="o">=</span> <span class="nf">pullInputBlock</span><span class="p">?(</span><span class="n">actionFlags</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">frameCount</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inputBufferList</span><span class="o">.</span><span class="n">unsafeMutablePointer</span><span class="p">)</span>
+	
+	<span class="k">if</span> <span class="n">inputStatus</span> <span class="o">!=</span> <span class="n">noErr</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="n">inputStatus</span> <span class="p">??</span> <span class="kt">KAudioUnitErr_FailedInitialization</span>
+	<span class="p">}</span>
+
+	<span class="k">let</span> <span class="nv">ablPointer</span> <span class="o">=</span> <span class="kt">UnsafeMutableAudioBufferListPointer</span><span class="p">(</span><span class="n">outputData</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">buffer</span> <span class="k">in</span> <span class="n">ablPointer</span> <span class="p">{</span>
+		<span class="c1">// do your summing here</span>
+		<span class="k">let</span> <span class="nv">input</span> <span class="o">=</span> <span class="kt">UnsafePointer</span><span class="o">&lt;</span><span class="kt">Float</span><span class="o">&gt;</span><span class="p">(</span><span class="n">inputBufferList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mData</span><span class="o">!.</span><span class="nf">assumingMemoryBound</span><span class="p">(</span><span class="nv">to</span><span class="p">:</span> <span class="kt">Float</span><span class="o">.</span><span class="k">self</span><span class="p">))</span>
+		<span class="o">...</span>
+	<span class="p">}</span>
+<span class="err">｝</span>
+</code></pre></div></div>
+<p>Since you allocated you are now also responsible for freeing when you are done with the block:</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">buffer</span> <span class="k">in</span> <span class="n">inputBufferList</span> <span class="p">{</span>
+	<span class="nf">free</span><span class="p">(</span><span class="n">buffer</span><span class="o">.</span><span class="n">mData</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nf">free</span><span class="p">(</span><span class="n">inputBufferList</span><span class="o">.</span><span class="n">unsafeMutablePointer</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Unfortunately some of those C-APIs don't translate well to Swift and can be hard to use even when you know what you are doing.</p>
+<p>Feel free to <a href="mailto:orjpap@gmail.com">contact me</a> for tips, feedback, opinions or sending me your cool audio effects.</p>
+<p>Thank you for reading!</p>
+
+  </div></div>
+
+      </section>
+    </main></body>
+</html>

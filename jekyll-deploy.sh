@@ -21,10 +21,6 @@ fi
 # Make sure on the SOURCE branch
 git checkout $SOURCE > /dev/null 2>&1
 
-# Check for a clean working directory
-# If the working directory is NOT clean, will stash the changes
-. $scriptdir/stasher.sh
-
 # Get the latest commit SHA in SOURCE branch
 last_SHA=( $(git log -n 1 --pretty=oneline) )
 
@@ -34,7 +30,7 @@ last_SHA=( $(git log -n 1 --pretty=oneline) )
 tmp_dir="temp_$last_SHA"
 
 # Build the Jekyll site directly to a temporary folder
-jekyll build -d ~/$tmp_dir > /dev/null 2>&1
+bundle exec jekyll build -d ~/$tmp_dir > /dev/null 2>&1
 if [ $? = 0 ]; then
   echo "Jekyll build successful"
 else
