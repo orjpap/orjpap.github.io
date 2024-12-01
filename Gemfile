@@ -6,3 +6,5 @@ group :jekyll_plugins do
   gem 'jekyll-feed'
 end
 gemspec
+
+gem "webrick", "~> 1.8"
