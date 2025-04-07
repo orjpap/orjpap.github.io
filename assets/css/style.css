@@ -62,6 +62,18 @@
   content: '\f30c'; }
 
 /* '' */
+/* Font Awesome LinkedIn icon */
+.fa-linkedin:before {
+  content: "\f0e1";
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
 /*! normalize.css v3.0.2 | MIT License | git.io/normalize */
 html {
   font-family: sans-serif;
