@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic);
 @font-face {
   font-family: 'fontello';
@@ -43,20 +44,32 @@
   /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */ }
 
 .icon-mail:before {
-  content: '\f003'; }
+  content: "\f003";
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
 
 .icon-calendar:before {
-  content: '\f073'; }
+  content: '\e800'; }
 
+/* '' */
 .icon-github-circled:before {
   content: '\f09b'; }
 
+/* '' */
 .icon-twitter-squared:before {
   content: '\f304'; }
 
+/* '' */
 .icon-linkedin-squared:before {
-  content: '\f0e1'; }
+  content: '\f30c'; }
 
+/* '' */
 /* Font Awesome LinkedIn icon */
 .fa-linkedin:before {
   content: "\f0e1";
