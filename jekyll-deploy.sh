@@ -1,89 +1,52 @@
 #!/bin/bash
 
-# A script to build a Jekyll site
+# Simple script to build and deploy Jekyll site from source to master
 
-# Check for the existence of a config file.
-if [ -f ./config ]; then
-  # If the config file exists, parse it and
-  #   extract the SOURCE and SITE branch names
-  scriptdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-  . $scriptdir/config-parser.sh
-  echo "Config file found"
-  echo "- Source branch is $SOURCE"
-  echo "- Site branch is $SITE"
-else
-  # If the file doesn't exist, use these defaults
-  SOURCE="source"
-  SITE="master"
-  echo "No config file found, use default config values"
+echo "🚀 Starting deployment process..."
+
+# Clean up SASS cache and _site directory
+echo "🧹 Cleaning up temporary files..."
+rm -rf .sass-cache _site
+
+# Make sure we're on the source branch
+git checkout source
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to switch to source branch"
+    exit 1
 fi
 
-# Make sure on the SOURCE branch
-git checkout $SOURCE > /dev/null 2>&1
-
-# Get the latest commit SHA in SOURCE branch
-last_SHA=( $(git log -n 1 --pretty=oneline) )
-
-# The name of the temporary folder will be the
-#   last commit SHA, to prevent possible conflicts
-#   with other folder names.
-tmp_dir="temp_$last_SHA"
-
-# Build the Jekyll site directly to a temporary folder
-bundle exec jekyll build -d ~/$tmp_dir > /dev/null 2>&1
-if [ $? = 0 ]; then
-  echo "Jekyll build successful"
-else
-  echo "Jekyll build failed"
-  exit 1
+# Build the site
+echo "📦 Building Jekyll site..."
+bundle exec jekyll build
+if [ $? -ne 0 ]; then
+    echo "❌ Jekyll build failed"
+    exit 1
 fi
 
-# Switch to the SITE branch
-git checkout $SITE > /dev/null 2>&1
-if [ $? = 1 ]; then
-  # Branch does not exist. Create an orphan branch.
-  git checkout -b $SITE > /dev/null 2>&1
-  git add --all .
-  git commit -m "Initial commit" > /dev/null 2>&1
-  echo "$SITE branch does not exist, created new"
+# Clean up SASS cache again after build
+echo "🧹 Cleaning up SASS cache after build..."
+rm -rf .sass-cache
+
+# Switch to master branch with force
+echo "🔄 Switching to master branch..."
+git checkout -f master
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to switch to master branch"
+    exit 1
 fi
 
-# Remove the current contents of the SITE branch and
-#   replace them with the contents of the temp folder
-current_dir=${PWD}
-rm -r $current_dir/*
-git rm -r --cached * > /dev/null 2>&1
-cp -r ~/$tmp_dir/* $current_dir
+# Copy the built site
+echo "📋 Copying built site..."
+cp -r _site/* .
 
-# Commit the changes to the SITE branch
-message="Updated $SITE site from $SOURCE ($last_SHA)"
-git add --all .
-git commit -m "$message" > /dev/null 2>&1
+# Commit and push changes
+echo "💾 Committing and pushing changes..."
+git add .
+git commit -m "Update site from source branch"
+git push origin master
 
-# Delete the temporary folder
-rm -r ~/$tmp_dir
+# Switch back to source
+git checkout source
 
-# Push latest SITE to server
-git push -u origin $SITE > /dev/null 2>&1
-if [ $? = 0 ]; then
-  echo "Push $SITE successful"
-else
-  echo "Push $SITE failed"
-fi
-
-# Switch back to SOURCE branch
-git checkout $SOURCE > /dev/null 2>&1
-
-# Push the SOURCE to the server
-git push -u origin $SOURCE > /dev/null 2>&1
-if [ $? = 0 ]; then
-  echo "Push $SOURCE successful"
-else
-  echo "Push $SOURCE failed"
-fi
-
-# If anything is stashed, let's get it back
-if [ $stashed = 1 ]; then
-  git stash apply
-fi
+echo "✅ Deployment complete!"
 
