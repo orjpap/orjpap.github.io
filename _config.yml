@@ -20,14 +20,13 @@ plainwhite:
 
   # generate social links in footer
   social_links:
-    twitter: OrestisPapadop8
     github:  orjpap
     email: orjpap@gmail.com
+    linkedIn: www.linkedin.com/in/orestis-papadopoulos-38612b358
     # dribbble: jekyll
     # facebook: jekyll
     # flickr:   jekyll
     # instagram: jekyll
-    # linkedin: jekyll
     # pinterest: jekyll
     # youtube: jekyll
     # youtube_channel: UC8CXR0-3I70i1tfPg1PAE1g
