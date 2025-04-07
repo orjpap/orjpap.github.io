@@ -15,6 +15,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Get the current commit hash from source branch
+SOURCE_COMMIT=$(git rev-parse --short HEAD)
+echo "📝 Building from source commit: $SOURCE_COMMIT"
+
 # Build the site
 echo "📦 Building Jekyll site..."
 bundle exec jekyll build
@@ -42,7 +46,7 @@ cp -r _site/* .
 # Commit and push changes
 echo "💾 Committing and pushing changes..."
 git add .
-git commit -m "Update site from source branch"
+git commit -m "Update site from source branch (commit: $SOURCE_COMMIT)"
 git push origin master
 
 # Switch back to source
