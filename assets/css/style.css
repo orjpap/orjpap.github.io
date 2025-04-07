@@ -1,42 +1,5 @@
 @charset "UTF-8";
 /* Remove Fontello references */
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic);
-.icon-mail:before {
-  content: "\f003";
-  font-family: 'FontAwesome';
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 0.8em; }
-
-.icon-github-circled:before {
-  content: "\f09b";
-  font-family: 'FontAwesome';
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 0.8em; }
-
-.icon-linkedin-squared:before {
-  content: "\f0e1";
-  font-family: 'FontAwesome';
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: 0.8em; }
-
 /* Chrome hack: SVG is rendered more smooth in Windozze. 100% magic, uncomment if you need it. */
 /* Note, that will break hinting! In other OS-es font will be not as sharp as it could be */
 /*
@@ -60,11 +23,8 @@
   font-style: normal;
 }
 */
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400italic);
 [class^="icon-"]:before, [class*=" icon-"]:before {
-  font-family: "fontello";
-  font-style: normal;
-  font-weight: normal;
-  speak: none;
   display: inline-block;
   text-decoration: inherit;
   width: 1em;
@@ -98,6 +58,40 @@
 /* Font Awesome LinkedIn icon */
 .fa-linkedin:before {
   content: "\f0e1";
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+/* Font Awesome LinkedIn icon */
+.fa-linkedin:before {
+  content: "\f0e1";
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.fa-envelope:before {
+  content: "\f0e0";
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.fa-github:before {
+  content: "\f09b";
   font-family: 'FontAwesome';
   font-style: normal;
   font-weight: normal;
@@ -708,7 +702,8 @@ main {
   padding: 0;
   margin-top: 0; }
   .social li {
-    float: left; }
+    float: left;
+    margin-right: 0.5em; }
     .social li i {
       font-size: 30px; }
     .social li .icon-mail {
