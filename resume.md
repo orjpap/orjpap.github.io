@@ -6,8 +6,6 @@ title: Resume
 
 # Orestis Papadopoulos | iOS Software Engineer
 
-### **Email:** [orjpap@gmail.com](mailto:orjpap@gmail.com)  | **Blog:** [orjpap.github.io](https://orjpap.github.io) | **GitHub:** [github.com/orjpap](https://github.com/orjpap)
-
 ## About me
 
 A software engineer with over seven years of proven experience in enterprise mobile apps. With a growth mindset, keen on learning new technologies and finding simple solutions to complex problems.
@@ -21,7 +19,7 @@ I thrive in collaborative, inclusive environments where knowledge sharing and te
 * Creating pixel perfect UI & animations
 * Building automation pipelines for mobile app development
 * Technical writing
-* Real-time and time-critical systems 
+* Real-time and time-critical systems
 * Proficient in Swift, UIKit, SwiftUI, GCD, Objective-C, C, C++ 11+
 * Production experience with VIPER, MVVM, Composable Architecture
 
@@ -54,5 +52,5 @@ I thrive in collaborative, inclusive environments where knowledge sharing and te
 
 ## Education
 
-**MSc Sound Design - University of Edinburgh, ECA (2016 - 2017)**  
-**BSc Computer Science, First Class - University of Manchester (2011-2014)** 
+**MSc Sound Design - University of Edinburgh, ECA (2016 - 2017)**
+**BSc Computer Science, First Class - University of Manchester (2011-2014)**
