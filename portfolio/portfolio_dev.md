@@ -11,6 +11,13 @@ Role: iOS Software Engineer
 
 Platform: iOS
 
+### Technologies
+* iOS
+* Barcode Scanning (Scandit SDK)
+* iOS Custom Keyboard Extension
+* Safari Browser Extension
+* Custom Remote Configuration
+
 [<img src="../assets/images/download_on_the_app_store.svg" class="appstoreDownload">](https://apps.apple.com/gr/app/scandit-express/id1613733334)
 
 ## Podfast
