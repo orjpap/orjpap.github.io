@@ -4,6 +4,10 @@
 
 echo "🚀 Starting deployment process..."
 
+# Clean up SASS cache
+echo "🧹 Cleaning SASS cache..."
+rm -rf .sass-cache
+
 # Make sure we're on the source branch
 git checkout source
 if [ $? -ne 0 ]; then
