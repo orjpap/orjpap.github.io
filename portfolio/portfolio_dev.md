@@ -4,6 +4,15 @@ category: featured
 title: Portfolio
 ---
 
+## Scandit Express
+![scandit_portfolio](../assets/images/scandit_portfolio.gif)
+
+Role: iOS Software Engineer
+
+Platform: iOS
+
+[<img src="../assets/images/download_on_the_app_store.svg" class="appstoreDownload">](https://apps.apple.com/gr/app/scandit-express/id1613733334)
+
 ## Podfast
 
 ![podfast_portfolio_halfsize_15](../assets/images/podfast_portfolio_halfsize_15.gif)
