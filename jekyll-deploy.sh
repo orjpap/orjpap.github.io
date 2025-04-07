@@ -4,9 +4,9 @@
 
 echo "🚀 Starting deployment process..."
 
-# Clean up SASS cache
-echo "🧹 Cleaning SASS cache..."
-rm -rf .sass-cache
+# Clean up SASS cache and _site directory
+echo "🧹 Cleaning up temporary files..."
+rm -rf .sass-cache _site
 
 # Make sure we're on the source branch
 git checkout source
@@ -23,9 +23,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Switch to master branch
+# Clean up SASS cache again after build
+echo "🧹 Cleaning up SASS cache after build..."
+rm -rf .sass-cache
+
+# Switch to master branch with force
 echo "🔄 Switching to master branch..."
-git checkout master
+git checkout -f master
 if [ $? -ne 0 ]; then
     echo "❌ Failed to switch to master branch"
     exit 1
