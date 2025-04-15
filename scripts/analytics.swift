@@ -100,8 +100,12 @@ func analyzeVisitors(_ visitors: [Visitor]) {
     // Analyze most visited posts
     var postCounts: [String: Int] = [:]
     for visitor in visitors {
-        postCounts[visitor.url, default: 0] += 1
+    if let cleanURL = URL(string: visitor.url)?.path {
+        postCounts[cleanURL, default: 0] += 1
+    } else {
+        postCounts[visitor.url, default: 0] += 1 // fallback in case URL parsing fails
     }
+}
 
     let maxReferrerVisibleLength = 40
     let paddedReferrerLength = 43 // make this the same for all rows
@@ -124,7 +128,7 @@ func analyzeVisitors(_ visitors: [Visitor]) {
     let sortedPosts = postCounts.sorted { $0.value > $1.value }
 
     for (url, count) in sortedPosts {
-        let filteredUrl = url.replacingOccurrences(of: "https://orjpap.github.io", with: "")
+        let filteredUrl = url
         let displayUrl = filteredUrl.split(separator: "/").last ?? "Home Page"
         let padded = displayUrl.padding(toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
         let countStr = String(format: "%2d", count)
