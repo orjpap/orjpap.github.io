@@ -4,8 +4,6 @@
 
 echo "🚀 Starting deployment process..."
 
-cd .. || { echo "❌ Failed to change to parent directory"; exit 1; }
-
 # Clean up SASS cache and _site directory
 echo "🧹 Cleaning up temporary files..."
 rm -rf .sass-cache _site
