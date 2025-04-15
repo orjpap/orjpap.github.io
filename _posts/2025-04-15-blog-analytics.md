@@ -52,7 +52,7 @@ I can directly manage the sqlite database using a very handy val called [sqlite_
 
 ![sqlite-explorer](/assets/images/2025-04-15-blog-analytics.assets/sqlite-explorer.png)
 
-I also made a [script](https://github.com) to read my analytics through the terminal. It's quite primitive, but it's all I need to check every once in a while.
+I also made a Swift [script](https://github.com/orjpap/orjpap.github.io/blob/8bbc591d0df3430e839d1c8e801532179b9ec40d/scripts/analytics.swift) to read my analytics through the terminal. It's quite primitive, but it's all I need to check every once in a while.
 
 ![1](/assets/images/2025-04-15-blog-analytics.assets/analytics-swift-terminal.png)
 
