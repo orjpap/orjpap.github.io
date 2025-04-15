@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<link href="https://fonts.googleapis.com/css?family=Merriweather:300|Raleway:400,700" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/assets/css/style.css">
+<title>Running my blog's analytics using Val Town</title>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Running my blog&#39;s analytics using Val Town | Orestis Papadopoulos</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Running my blog&#39;s analytics using Val Town" />
+<meta name="author" content="Orestis Papadopoulos" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Random morning thoughts: how many people actually visit this blog? Where do they come from? What if I could just spend a little time to build my own analytics?" />
+<meta property="og:description" content="Random morning thoughts: how many people actually visit this blog? Where do they come from? What if I could just spend a little time to build my own analytics?" />
+<meta property="og:site_name" content="Orestis Papadopoulos" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-04-15T09:33:36+03:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Running my blog&#39;s analytics using Val Town" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Orestis Papadopoulos"},"dateModified":"2025-04-15T09:33:36+03:00","datePublished":"2025-04-15T09:33:36+03:00","description":"Random morning thoughts: how many people actually visit this blog? Where do they come from? What if I could just spend a little time to build my own analytics?","headline":"Running my blog&#39;s analytics using Val Town","mainEntityOfPage":{"@type":"WebPage","@id":"/valtown/http/analytics/blog/jekyll/2025/04/15/blog-analytics.html"},"url":"/valtown/http/analytics/blog/jekyll/2025/04/15/blog-analytics.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+<script src="https://orjpap-bloganalyticsserver.web.val.run/analytics.js"></script>
+</head>
+  <body>
+    <main class="container">
+      <section class="about">
+        <a href="/"><img src="/assets/portfolio.png" alt="Orestis Papadopoulos"></a>
+        <h2 id="title">
+          <a href="/">Orestis Papadopoulos</a>
+        </h2>
+        <p class="tagline">Software, Sound, Swift</p>
+        <ul class="social"><a href="https://github.com/orjpap">
+              <li>
+                <i class="fa-brands fa-github"></i>
+              </li>
+            </a><a href="https://www.linkedin.com/in/orestis-papadopoulos-38612b358">
+              <li>
+                <i class="fa fa-linkedin"></i>
+              </li>
+            </a><a href="mailto:orjpap@gmail.com">
+              <li>
+                <i class="fa-regular fa-envelope"></i>
+              </li>
+            </a></ul><nav class="navigation">
+            <ul>
+              
+                
+              
+                
+              
+                
+                  <li><a href="/portfolio/portfolio_dev.html"> Portfolio </a></li>
+                
+              
+                
+              
+                
+                  <li><a href="/resume.html"> Resume </a></li>
+                
+              
+                
+              
+                
+              
+                
+              
+            </ul>
+          </nav></section>
+      <section class="content">
+        <div class="post-container">
+  <a class="post-link" href="/valtown/http/analytics/blog/jekyll/2025/04/15/blog-analytics.html">
+    <h2 class="post-title">Running my blog&#39;s analytics using Val Town</h2>
+  </a>
+  <div class="post-meta">
+    <ul class="post-categories"><li>Valtown</li><li>HTTP</li><li>Analytics</li><li>Blog</li><li>Jekyll</li></ul>
+    <div class="post-date">Apr 15, 2025</div>
+  </div>
+  <div class="post">
+    <p>Random morning thoughts: how many people actually visit this blog? Where do they come from? What if I could just spend a little time to build my own <strong>analytics</strong>?</p>
+<p>I used <a href="https://plausible.io">Plausible</a> Analytics for a while, it's a great Firebase alternative and worth checking out. It has a smooth interface and is easy to set up. However, I realized I don’t need all the features it offers, and the traffic I get is (probably — last time I checked) not huge. So my needs for <strong>analytics</strong> are really simple:</p>
+<p>I want to know:</p>
+<ul>
+<li>How many people visit my blog (in the last week, month, year)</li>
+<li>Where they come from (which social media, search engine, etc.)</li>
+<li>Which posts are the most visited</li>
+</ul>
+<p>It shouldn't be that hard, right?</p>
+<h2 id="server-setup">Server Setup</h2>
+<p>I decided to use <a href="https://www.val.town/dashboard">Val Town’s</a> free tier to set up an HTTP server backed by a simple SQLite database. <strong>Val Town</strong> is a website where you can write serverless JavaScript functions, with an emphasis on collaboration.</p>
+<p>The server basically has two endpoints:</p>
+<ul>
+<li>A <strong>POST</strong> endpoint that registers <strong>events</strong> by writing to a <strong>SQLite</strong> database.</li>
+<li>A <strong>GET</strong> endpoint that returns all the <strong>events</strong> found in the database.</li>
+</ul>
+<p>It also serves a <a href="https://orjpap-bloganalyticsserver.web.val.run/analytics.js">JS script</a>. This script gets injected into the <strong>&lt;head&gt;</strong> of every page of my blog (you just got injected too) and sends events to the <strong>POST</strong> endpoint. The script is obfuscated to make it harder to extract the API key. The main reason why I serve the js key from the server is that it makes it easier to rotate/refresh keys.</p>
+<h2 id="events">Events</h2>
+<p>An event looks like this:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://orjpap.github.io/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"referrer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.google.com/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-04-15T10:19:48.580Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<p>You can store up to <strong>10MB</strong> in SQLite on the free plan. GPT estimates each row to be around <em>290–300 bytes</em>, which means I can probably store about <strong>35k events</strong>. In the very pleasant event of reaching the max limit, I can download my data as JSON, store it somewhere, and then delete and continue tracking or upgrade to a paid tier.</p>
+<h2 id="viewing-the-data">Viewing the Data</h2>
+<p>I can directly manage the sqlite database using a very handy val called <a href="https://www.val.town/v/nbbaier/sqlite_explorer">sqlite_explorer</a>. It allows me to run SQL queries and offers a basic UI that gets the job done.</p>
+<p><img src="/assets/images/2025-04-15-blog-analytics.assets/sqlite-explorer.png" alt="sqlite-explorer" /></p>
+<p>I also made a <a href="https://github.com">script</a> to read my analytics through the terminal. It's quite primitive, but it's all I need to check every once in a while.</p>
+<p><img src="/assets/images/2025-04-15-blog-analytics.assets/analytics-swift-terminal.png" alt="1" /></p>
+<h2 id="sharing">Sharing</h2>
+<p>That’s pretty much it! I’m really impressed that I pulled this together in less than a day. I’m glad it’s already running and even more glad I’ve already managed to collect some data from real users.</p>
+<p>Feel free to fork my Val Town server if you're interested in rolling your own analytics.</p>
+<iframe width="100%" height="400px" src="https://www.val.town/embed/orjpap/simpleAnalytics" title="Val Town" frameborder="0" allow="web-share" allowfullscreen></iframe>
+
+  </div></div>
+
+      </section>
+    </main></body>
+</html>

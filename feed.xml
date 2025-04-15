@@ -1,5 +1,40 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-04-15T15:59:46+03:00</updated><id>/feed.xml</id><title type="html">Orestis Papadopoulos</title><subtitle>I&apos;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.
-</subtitle><author><name>Orestis Papadopoulos</name></author><entry><title type="html">AVAudioEffectNode: Configurable Input-Output</title><link href="/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html" rel="alternate" type="text/html" title="AVAudioEffectNode: Configurable Input-Output" /><published>2024-12-01T08:33:36+02:00</published><updated>2024-12-01T08:33:36+02:00</updated><id>/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output</id><content type="html" xml:base="/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html"><![CDATA[<p>In my <a href="https://orjpap.github.io/swift/low-level/audio/avfoundation/2024/09/19/avAudioEffectNode.html">previous post</a>, I have come up with a simplistic implementation of an AVAudioEffectNode with a custom render block. At that time, I assumed a fixed setup with two channels and a sample rate of 44,100 Hz. However, a reader recently reached out, asking how to adapt this for an audio effect that converts stereo input to mono output. This inspired me to modify the <code>AVAudioEffectNode</code> class for greater flexibility.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2025-04-16T02:18:13+03:00</updated><id>/feed.xml</id><title type="html">Orestis Papadopoulos</title><subtitle>I&apos;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.
+</subtitle><author><name>Orestis Papadopoulos</name></author><entry><title type="html">Running my blog’s analytics using Val Town</title><link href="/valtown/http/analytics/blog/jekyll/2025/04/15/blog-analytics.html" rel="alternate" type="text/html" title="Running my blog’s analytics using Val Town" /><published>2025-04-15T09:33:36+03:00</published><updated>2025-04-15T09:33:36+03:00</updated><id>/valtown/http/analytics/blog/jekyll/2025/04/15/blog-analytics</id><content type="html" xml:base="/valtown/http/analytics/blog/jekyll/2025/04/15/blog-analytics.html"><![CDATA[<p>Random morning thoughts: how many people actually visit this blog? Where do they come from? What if I could just spend a little time to build my own <strong>analytics</strong>?</p>
+<p>I used <a href="https://plausible.io">Plausible</a> Analytics for a while, it's a great Firebase alternative and worth checking out. It has a smooth interface and is easy to set up. However, I realized I don’t need all the features it offers, and the traffic I get is (probably — last time I checked) not huge. So my needs for <strong>analytics</strong> are really simple:</p>
+<p>I want to know:</p>
+<ul>
+<li>How many people visit my blog (in the last week, month, year)</li>
+<li>Where they come from (which social media, search engine, etc.)</li>
+<li>Which posts are the most visited</li>
+</ul>
+<p>It shouldn't be that hard, right?</p>
+<h2 id="server-setup">Server Setup</h2>
+<p>I decided to use <a href="https://www.val.town/dashboard">Val Town’s</a> free tier to set up an HTTP server backed by a simple SQLite database. <strong>Val Town</strong> is a website where you can write serverless JavaScript functions, with an emphasis on collaboration.</p>
+<p>The server basically has two endpoints:</p>
+<ul>
+<li>A <strong>POST</strong> endpoint that registers <strong>events</strong> by writing to a <strong>SQLite</strong> database.</li>
+<li>A <strong>GET</strong> endpoint that returns all the <strong>events</strong> found in the database.</li>
+</ul>
+<p>It also serves a <a href="https://orjpap-bloganalyticsserver.web.val.run/analytics.js">JS script</a>. This script gets injected into the <strong>&lt;head&gt;</strong> of every page of my blog (you just got injected too) and sends events to the <strong>POST</strong> endpoint. The script is obfuscated to make it harder to extract the API key. The main reason why I serve the js key from the server is that it makes it easier to rotate/refresh keys.</p>
+<h2 id="events">Events</h2>
+<p>An event looks like this:</p>
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://orjpap.github.io/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"referrer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.google.com/"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2025-04-15T10:19:48.580Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"user_agent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<p>You can store up to <strong>10MB</strong> in SQLite on the free plan. GPT estimates each row to be around <em>290–300 bytes</em>, which means I can probably store about <strong>35k events</strong>. In the very pleasant event of reaching the max limit, I can download my data as JSON, store it somewhere, and then delete and continue tracking or upgrade to a paid tier.</p>
+<h2 id="viewing-the-data">Viewing the Data</h2>
+<p>I can directly manage the sqlite database using a very handy val called <a href="https://www.val.town/v/nbbaier/sqlite_explorer">sqlite_explorer</a>. It allows me to run SQL queries and offers a basic UI that gets the job done.</p>
+<p><img src="/assets/images/2025-04-15-blog-analytics.assets/sqlite-explorer.png" alt="sqlite-explorer" /></p>
+<p>I also made a <a href="https://github.com">script</a> to read my analytics through the terminal. It's quite primitive, but it's all I need to check every once in a while.</p>
+<p><img src="/assets/images/2025-04-15-blog-analytics.assets/analytics-swift-terminal.png" alt="1" /></p>
+<h2 id="sharing">Sharing</h2>
+<p>That’s pretty much it! I’m really impressed that I pulled this together in less than a day. I’m glad it’s already running and even more glad I’ve already managed to collect some data from real users.</p>
+<p>Feel free to fork my Val Town server if you're interested in rolling your own analytics.</p>
+<iframe width="100%" height="400px" src="https://www.val.town/embed/orjpap/simpleAnalytics" title="Val Town" frameborder="0" allow="web-share" allowfullscreen></iframe>]]></content><author><name>Orestis Papadopoulos</name></author><category term="Valtown" /><category term="HTTP" /><category term="Analytics" /><category term="Blog" /><category term="Jekyll" /><summary type="html"><![CDATA[Random morning thoughts: how many people actually visit this blog? Where do they come from? What if I could just spend a little time to build my own analytics?]]></summary></entry><entry><title type="html">AVAudioEffectNode: Configurable Input-Output</title><link href="/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html" rel="alternate" type="text/html" title="AVAudioEffectNode: Configurable Input-Output" /><published>2024-12-01T08:33:36+02:00</published><updated>2024-12-01T08:33:36+02:00</updated><id>/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output</id><content type="html" xml:base="/swift/low-level/audio/avfoundation/2024/12/01/avaudioeffectnode-input-output.html"><![CDATA[<p>In my <a href="https://orjpap.github.io/swift/low-level/audio/avfoundation/2024/09/19/avAudioEffectNode.html">previous post</a>, I have come up with a simplistic implementation of an AVAudioEffectNode with a custom render block. At that time, I assumed a fixed setup with two channels and a sample rate of 44,100 Hz. However, a reader recently reached out, asking how to adapt this for an audio effect that converts stereo input to mono output. This inspired me to modify the <code>AVAudioEffectNode</code> class for greater flexibility.</p>
 <h2 id="key-changes">Key Changes</h2>
 <p>To accommodate different input and output configurations, I made the following updates:</p>
 <ol>
@@ -690,18 +725,27 @@ ok 1 - <span class="sb">`</span>user.name <span class="o">==</span> anotherUser.
 (b) write code that implements it
 (c) assess the value it adds for the user
 (d) integrate it into the app. That's how I made an iOS app <strong>prototype</strong> pretty quickly, implementing this user story into local podcast audio files and just a <a href="https://developer.apple.com/documentation/uikit/uislider">UISlider</a>.</p>
-<!-- raw HTML omitted -->
+<video controls width="320" height="576">
+  <source src="/assets/images/2019-14-20-podfast.assets/podfast_early_prototype.mp4">
+Your browser does not support the video tag.
+</video>
 <p>My next step was to use some real <strong>data sources</strong>. I turned to <a href="https://rss.itunes.apple.com/en-us">iTunes RSS Feed Generator</a>, a publicly accessible API which returns a <a href="https://rss.itunes.apple.com/api/v1/gr/podcasts/top-podcasts/all/100/explicit.json">JSON file</a> with the Top 100 Podcasts in different regions, regularly updated on an almost weekly basis. After collecting this data I had to jump through some hoops - I won’t bore you with the details - to get the metadata for each podcast (XML RSS feed parsing anyone? 😁) but thankfully, the podcast RSS feed tags are properly standardized in order to get parsed by iTunes, Spotify etc.</p>
 <p>At this point, I realised that the less the app's core logic knows about the <strong>specifics</strong> of the various data sources, the better for the app. To achieve this separation, I spent some weeks researching the most common app architecture patterns and ended up re-writing my hacky/scripty view controller logic by using something very similar to <a href="https://www.objc.io/issues/13-architecture/viper/">Viper</a> and <a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">Uncle Bob's clean architecture</a> but not exactly any of them. For those of you who are interested, you can take a look at the folder called <a href="https://github.com/orjpap/podfast/tree/master/PodFast/Use%20Cases/Discovery">Use Cases</a> and let me know what you think (I’m suspecting I have committed some over-abstraction crimes here). Anyway, my goal behind all this was very clear: I wanted to be able to <strong>switch data sources</strong> on a whim, without having to re-write half of my app. This proved to be very valuable when remote configuration feeding podcast data was added.</p>
 <p>I also noticed that podcasts could be organised <strong>by category</strong> and that was pretty neat, since such a minimal visual cue is not prominent enough to distract the user from <strong>listening</strong>. Finally, I replaced the slider with a <a href="https://developer.apple.com/documentation/uikit/uicollectionview">UICollectionView</a> to display the category names and also wrote some simple collision logic:</p>
-<!-- raw HTML omitted -->
+<video controls width="320" height="576">
+  <source src="/assets/images/2019-14-20-podfast.assets/podfast_early_prototype2.mp4">
+Your browser does not support the video tag.
+</video>
 <p>That was the <strong>prototype</strong> I showed to the visual artist/writer Vasia Bakogianni, also known as <a href="https://www.kroutsef.com">@kroutsef</a> and asked her to work as a <strong>graphic designer</strong> for the app. She took it all in and we got straight to work. After a few interesting conversations, brainstorming sessions and design iterations she came up with the <strong>app icon</strong>:</p>
-<!-- raw HTML omitted -->
+<img src="/assets/images/2019-14-20-podfast.assets/podfast_logo.PNG" alt="podfast_logo" style="zoom:50%;" class ="center"/>
 <p>Vasia has not only worked as a designer for the project, but since she is an avid podcast listener, she has also provided valuable feedback on the user experience, as well as hours of interesting app and non-app related conversations. After taking a <strong>short break</strong>, where we had to work on various other projects, we got back to ‘Podfast’ and decided to push towards the app release by setting a strict release date. Since we’d done a lot of groundwork and the concept had already been solidified, we finalized the <strong>designing</strong> aspect of it shortly after:</p>
 <p><img src="/assets/images/2019-14-20-podfast.assets/design_screenshot.png" alt="design_screenshot" /></p>
 <p>From a software perspective we agreed on a <strong>subset</strong> of features that would be included in the release, a sort of minimum viable product (<strong>MVP</strong>) approach, based on the following principle: before making a significant time and effort investment we have to set out to release the product, deliver it to the users and then channel their input back into the process of development.</p>
 <p>Shortly prior to the big release, I realised that since there is <strong>streaming</strong> involved and the loading time experience ranges from “seemingly instant” to &quot;slower than death caused by a natural cause”, we needed a way to indicate the <strong>buffering state</strong>. We decided to go with something different from the established spinner/loader pattern and use <strong>radio static sounds</strong>. The current, simplified implementation has a static sound sample played when <a href="https://developer.apple.com/documentation/avfoundation/avplayer">AVPlayer</a> is <a href="https://github.com/orjpap/podfast/blob/120ef148529dfffed1151919402ca0022014a85d/PodFast/Use%20Cases/Discovery/AudioPlayer.swift#L118-L188">having a rough time</a> buffering. Of course, there is definitely room for improvement by obviously inserting <strong>procedural sound design</strong> into the concept. Spinners are the ultimate playground for graphic designers, so let's also give sound designers the opportunity to indicate <strong>loading states</strong>.</p>
-<!-- raw HTML omitted -->
+<video controls width="320" height="576">
+  <source src="/assets/images/2019-14-20-podfast.assets/streaming_static.mp4">
+Your browser does not support the video tag.
+</video>
 <p>Over a period of one week and a few micro-features later, some of which are:</p>
 <ol>
 <li>Categories are sorted out by “most listened”</li>
@@ -714,7 +758,7 @@ ok 1 - <span class="sb">`</span>user.name <span class="o">==</span> anotherUser.
 <p><img src="/assets/images/podfast_portfolio_halfsize_15.gif" alt="podfast_gif" /></p>
 <h2 id="where-to-next">Where to next?</h2>
 <p>You can download the app for free from the App Store and give it a try.</p>
-<p><a href="https://apps.apple.com/us/app/podfast/id1507685149?ls=1"><!-- raw HTML omitted --></a></p>
+<p><a href="https://apps.apple.com/us/app/podfast/id1507685149?ls=1"><img src="/assets/images/download_on_the_app_store.svg" class="appstoreDownload"></a></p>
 <p>Our users have already done a great job sharing their feedback with us. We are bound to release an update soon, with improved features that were assimilated thanks to their suggestions. We would also love to hear your own <strong>feedback</strong> on the app <a href="mailto:orjpap@gmail.com">Send us an email</a> or get in touch on Twitter <a href="https://twitter.com/OrestisPapadop8">@orjpap</a>, <a href="https://twitter.com/vasiabakogianni">@kroutsef</a>. Feel free to share with us your favourite podcasts and the category they belong to as well, so we can add them to our collection.</p>
 <p>There is still a lot to learn and improve, so further optimization in the departments of <strong>streaming logic</strong>, <strong>sound design</strong> and <strong>visuals</strong> of the app is inevitable. Besides, we’re planning to introduce the parameter of <strong>locality</strong> mentioned above. Instead of just selecting from the US Top 100 and our curated podcasts, the user will be able to discover podcasts that are popular in their respective country.</p>
 <p>An <strong>Android app</strong> is also in the making by <a href="https://github.com/Pkoutsokeras">Petros Koutsokeras</a></p>
@@ -722,109 +766,4 @@ ok 1 - <span class="sb">`</span>user.name <span class="o">==</span> anotherUser.
 <p>To sum up, I will just quote Vasia's carefully crafted words:</p>
 <blockquote>
 <p>Podfast is, after all, not a digital radio simulation that aspires to send you on a nostalgia trip. It is a tool that re-establishes the user trust in a carefully selected bunch of cultural products picked by the users themselves without strain.</p>
-</blockquote>]]></content><author><name>Orestis Papadopoulos</name></author><category term="Product" /><category term="Design" /><category term="Swift" /><category term="iOS" /><summary type="html"><![CDATA[I can clearly recall my mother's disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me.]]></summary></entry><entry><title type="html">How to Set Up Xcode Build Configurations</title><link href="/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes.html" rel="alternate" type="text/html" title="How to Set Up Xcode Build Configurations" /><published>2020-04-20T18:33:36+03:00</published><updated>2020-04-20T18:33:36+03:00</updated><id>/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes</id><content type="html" xml:base="/xcode/ios/swift/cocoapods/2020/04/20/iOS-build-schemes.html"><![CDATA[<p>Build configurations are useful for a handful of reasons. If you are developing an app that's currently in production, chances are you are switching from your production API endpoints to some kind of <strong>test environment</strong> endpoints for development. Of course you can do the &quot;comment/uncomment URL constants&quot; dance everytime you need to <strong>switch environments</strong>, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable.</p>
-<p>Take <strong>automated builds</strong> for example, be it custom nightly build scripts or some ultra-fancy CI pipeline. The number one rule of automated build is that you have to be able to produce a build for your project with a <em>&quot;single command&quot;</em>. Which is not the case if you need to comment/uncomment lines every time you build in order to point to the correct environment.</p>
-<p>Unfortunately (at the time of writing this post) the way to set up build configurations in Xcode is not very straightforward and it certainly does not feel as user friendly as other Xcode features. But let's dive into it.</p>
-<h2 id="create-a-configuration-file">Create a Configuration File</h2>
-<p>Go to <strong>File -&gt; New -&gt; File</strong> (or cmd + N) and select the <strong>&quot;Configuration Settings File&quot;</strong> template.</p>
-<p>A Configuration Settings File (a file with a <code>.xcconfig</code> file extension) is a plain text file that defines and overrides the <a href="https://help.apple.com/xcode/mac/11.4/#/dev382dac089">build settings</a> for a particular build configuration of a project or target.</p>
-<p>We'll create one file for Production, called <strong>Production.xcconfig</strong> and another one for Development called... you guessed it, <strong>Development.xcconfig</strong></p>
-<h2 id="define-strongbuild-variablesstrong">Define <strong>build variables</strong></h2>
-<p>Let's say that we want to be able to configure a backend endpoint and the app's display name.</p>
-<p>We can add the following to Production.xcconfig:</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BACKEND_URL <span class="o">=</span> https:/<span class="si">$()</span>/my.production.api/v1
-APP_NAME <span class="o">=</span> Production
-</code></pre></div></div>
-<p>and Development.xcconfig</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BACKEND_URL <span class="o">=</span> https:/<span class="si">$()</span>/my.test.api/v1
-APP_NAME <span class="o">=</span> Development
-</code></pre></div></div>
-<p>$() denotes an <strong>empty variable substitution</strong>. It's used in order to escape the double dash so that the part following it is not treated as a comment. A minor annoyance, but quite handy when you know it!</p>
-<p>Another way to go about customising <!-- raw HTML omitted -->existing<!-- raw HTML omitted --> target build settings is to override settings such as PRODUCT_NAME. I do not prefer this approach since dealing with build setting levels and inheritance can be a tedious. Instead, I use only new variable names and assign them to the corresponding values in info.plist (more on that later)</p>
-<h2 id="create-new-build-configurations">Create New Build Configurations</h2>
-<p>Press the &quot;+&quot; icon and select which basic configuration you want to duplicate, release or debug in this case. I will go for release for Production and debug for Development.</p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/1-7397814.png" alt="1-7397814" /></p>
-<p>Then select which configuration file this build configuration is based on. You can define this for the whole project or for specific targets.</p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/2.png" alt="2" /></p>
-<h2 id="assign-build-configurations">Assign Build Configurations</h2>
-<p>Now if we navigate to <strong>&quot;Edit Scheme&quot;</strong> for the current scheme, our just defined build configurations are avaiable to select for the different actions.</p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/3.png" alt="3" /></p>
-<p>If it wasn't for <strong>cocoapods</strong> our project would build and run right now, but we'll deal with that later. First let's make some custom schemes so that we can easily switch between the various build configurations.</p>
-<h2 id="create-custom-schemes">Create Custom Schemes</h2>
-<p>I usually delete (select and click on the &quot;-&quot; icon) the default scheme and create new ones for each configuration. From the &quot;manage schemes&quot; menu, let's create two new schemes named <strong>Production</strong> and <strong>Development</strong> using the default target. Don't forget to edit the schemes to run the corresponding build configuration on <!-- raw HTML omitted -->Run<!-- raw HTML omitted --></p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/4.png" alt="4" /></p>
-<h2 id="cocoapods">Cocoapods</h2>
-<p><em>If you are not using cocoapods you can skip this section.</em></p>
-<p>In order to make cocoapods integrate nicely with our custom build configurations we need to:</p>
-<ol>
-<li>
-<p><strong>Add custom build configurations to PodFile</strong></p>
-<p>Specify where your build configuration is derived from so that Cocoapods can create its own build configuration for the project's dependencies</p>
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">project 'BuildConfigurationsTutorial', 'Production' =&gt; :release, 'Development' =&gt; :debug</span>
-</code></pre></div></div>
-</li>
-<li>
-<p><strong>Run pod install from the root of your project</strong></p>
-<p>Open up a terminal in the root directory of your project and run:</p>
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nv">$:</span> pod <span class="nb">install</span>
-</code></pre></div></div>
-<p>Cocoapods will create its own .xcconfig files located in the <strong>/Pods/Targets Support Files/&lt;Project Name&gt;/</strong> folder of your workspace. One for each build configuration in the project.</p>
-</li>
-<li>
-<p><strong>Include the cocoapods build configs in the custom configuration files</strong></p>
-<p>Configuration files can include other .xcconfig files. In Production.xcconfig add:</p>
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include "Pods/Target Support Files/Pods-BuildConfigurationsTutorial/Pods-BuildConfigurationsTutorial.production.xcconfig"
-</code></pre></div></div>
-<p>And similar for Development.xcconfig</p>
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#include "Pods/Target Support Files/Pods-BuildConfigurationsTutorial/Pods-BuildConfigurationsTutorial.development.xcconfig"
-</code></pre></div></div>
-</li>
-</ol>
-<h2 id="assign-build-variables-to-infoplist">Assign build variables to info.plist</h2>
-<p>In the project's info.plist you can assign build variables as values using variable substituion i.e <strong>$(VARIABLE_NAME)</strong> notation. For the Bundle Name key we can use <strong>$(APP_NAME)</strong> and we can create a new key (right click + add row) named <strong>BACKEND_URL</strong> and assign <strong>$(BACKEND_URL)</strong> to it</p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/5.png" alt="5" /></p>
-<h2 id="access-build-variables-from-code">Access build variables from code</h2>
-<p>Add the following to a <strong>BuildConfiguration.swift</strong> file in your project:</p>
-<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">enum</span> <span class="kt">BuildConfiguration</span> <span class="p">{</span>
-    <span class="kd">enum</span> <span class="kt">Error</span><span class="p">:</span> <span class="kt">Swift</span><span class="o">.</span><span class="kt">Error</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="n">missingKey</span><span class="p">,</span> <span class="n">invalidValue</span>
-    <span class="p">}</span>
-
-    <span class="kd">static</span> <span class="kd">func</span> <span class="n">value</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="k">for</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span> <span class="k">where</span> <span class="kt">T</span><span class="p">:</span> <span class="kt">LosslessStringConvertible</span> <span class="p">{</span>
-        <span class="k">guard</span> <span class="k">let</span> <span class="nv">object</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">object</span><span class="p">(</span><span class="nv">forInfoDictionaryKey</span><span class="p">:</span> <span class="n">key</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="k">throw</span> <span class="kt">Error</span><span class="o">.</span><span class="n">missingKey</span>
-        <span class="p">}</span>
-
-        <span class="k">switch</span> <span class="n">object</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="k">let</span> <span class="nv">string</span> <span class="k">as</span> <span class="kt">String</span><span class="p">:</span>
-            <span class="k">guard</span> <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="kt">T</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span> <span class="k">fallthrough</span> <span class="p">}</span>
-            <span class="k">return</span> <span class="n">value</span>
-        <span class="k">default</span><span class="p">:</span>
-            <span class="k">throw</span> <span class="kt">Error</span><span class="o">.</span><span class="n">invalidValue</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">enum</span> <span class="kt">API</span> <span class="p">{</span>
-    <span class="kd">static</span> <span class="k">var</span> <span class="nv">backendURL</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span>
-        <span class="k">do</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="k">try</span> <span class="kt">BuildConfiguration</span><span class="o">.</span><span class="nf">value</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="s">"BACKEND_URL"</span><span class="p">)</span>
-        <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
-            <span class="nf">fatalError</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-<p>Then anywhere you need to access the backend URL you can access it using the enum static variable</p>
-<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">Text</span><span class="p">(</span><span class="s">"Backend URL: </span><span class="se">\(</span><span class="kt">API</span><span class="o">.</span><span class="n">backendURL</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
-</code></pre></div></div>
-<h2 id="build-and-run">Build and Run</h2>
-<p>Building the Production scheme:</p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/6.png" alt="6" /></p>
-<p>Building the Development scheme:</p>
-<p><img src="/assets/images/2019-14-20-iOS-build-schemes.assets/7.png" alt="7" /></p>
-<h2 id="useful-links">Useful Links</h2>
-<p><a href="https://github.com/orjpap/XcodeBuildConfigurationsTutorial">Clone the example in Github</a></p>
-<p><a href="https://help.apple.com/xcode/#/dev745c5c974">Apple's Documentation</a></p>
-<p><a href="https://pewpewthespells.com/blog/xcconfig_guide.html">The unofficial Guide to XcodeConfig</a></p>
-<p><a href="https://nshipster.com/xcconfig/">NSHipster's Xcode Build Configuration Files</a></p>]]></content><author><name>Orestis Papadopoulos</name></author><category term="Xcode" /><category term="iOS" /><category term="Swift" /><category term="Cocoapods" /><summary type="html"><![CDATA[Build configurations are useful for a handful of reasons. If you are developing an app that's currently in production, chances are you are switching from your production API endpoints to some kind of test environment endpoints for development. Of course you can do the &quot;comment/uncomment URL constants&quot; dance everytime you need to switch environments, but other than being a tedious and error-prone process there are cases where build configurations are unavoidable.]]></summary></entry></feed>
+</blockquote>]]></content><author><name>Orestis Papadopoulos</name></author><category term="Product" /><category term="Design" /><category term="Swift" /><category term="iOS" /><summary type="html"><![CDATA[I can clearly recall my mother's disappointment once she realised she couldn’t listen to the radio through her new iPhone. Which made total sense to me.]]></summary></entry></feed>
