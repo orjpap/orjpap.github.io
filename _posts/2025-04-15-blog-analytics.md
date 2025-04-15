@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Running my blog's analytics using Val Town"
+title: "How I Track My Blog’s Analytics with Val Town"
 date: 2025-04-15 12:03:36 +0530
 categories: Valtown HTTP Analytics Blog Jekyll
 doctest: false
