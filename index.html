@@ -23,24 +23,7 @@
 {"@context":"https://schema.org","@type":"WebSite","author":{"@type":"Person","name":"Orestis Papadopoulos"},"description":"I&#39;m Orestis Papadopoulos. I work as a software developer. This is my blog, I write about software, sounds and Swift.","headline":"Orestis Papadopoulos","name":"Orestis Papadopoulos","url":"/"}</script>
 <!-- End Jekyll SEO tag -->
 
-<script>
-  (function () {
-    fetch("https://orjpap-bloganalyticsserver.web.val.run", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        url: window.location.href,
-        referrer: document.referrer,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
-      })
-    }).catch((e) => {
-      console.warn("Analytics tracking failed", e);
-    });
-  })();
-</script>
+<script src="https://orjpap-bloganalyticsserver.web.val.run/analytics.js"></script>
 </head>
   <body>
     <main class="container">
