@@ -97,7 +97,8 @@
 <li>A <strong>POST</strong> endpoint that registers <strong>events</strong> by writing to a <strong>SQLite</strong> database.</li>
 <li>A <strong>GET</strong> endpoint that returns all the <strong>events</strong> found in the database.</li>
 </ul>
-<p>It also serves a <a href="https://orjpap-bloganalyticsserver.web.val.run/analytics.js">JS script</a>. This script gets injected into the <strong>&lt;head&gt;</strong> of every page of my blog (you just got injected too) and sends events to the <strong>POST</strong> endpoint. The script is obfuscated to make it harder to extract the API key. The main reason why I serve the js key from the server is that it makes it easier to rotate/refresh keys.</p>
+<p>It also serves a <a href="https://orjpap-bloganalyticsserver.web.val.run/analytics.js">JS script</a>. This script gets injected into the <strong>&lt;head&gt;</strong> of every page of my blog (you just got injected too) and sends events to the <strong>POST</strong> endpoint.</p>
+<p>In order to protect the server from unauthorized access, the only <strong>allowed origin</strong> is my website. Both endpoints are protected by a secret API key. The script is <strong>obfuscated</strong> to make it harder to extract the API key. Finally, serving the script directly from the server allows for easier key <strong>rotation</strong> and updates.</p>
 <h2 id="events">Events</h2>
 <p>An event looks like this:</p>
 <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
