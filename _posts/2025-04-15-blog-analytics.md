@@ -28,7 +28,9 @@ The server basically has two endpoints:
 - A **POST** endpoint that registers **events** by writing to a **SQLite** database.
 - A **GET** endpoint that returns all the **events** found in the database.
 
-It also serves a [JS script](https://orjpap-bloganalyticsserver.web.val.run/analytics.js). This script gets injected into the **\<head\>** of every page of my blog (you just got injected too) and sends events to the **POST** endpoint. The script is obfuscated to make it harder to extract the API key. The main reason why I serve the js key from the server is that it makes it easier to rotate/refresh keys.
+It also serves a [JS script](https://orjpap-bloganalyticsserver.web.val.run/analytics.js). This script gets injected into the **\<head\>** of every page of my blog (you just got injected too) and sends events to the **POST** endpoint.
+
+In order to protect the server from unauthorized access, the only **allowed origin** is my website. Both endpoints are protected by a secret API key. The script is **obfuscated** to make it harder to extract the API key. Finally, serving the script directly from the server allows for easier key **rotation** and updates.
 
 
 ## Events
