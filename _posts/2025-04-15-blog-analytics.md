@@ -30,7 +30,7 @@ The server basically has two endpoints:
 
 It also serves a [JS script](https://orjpap-bloganalyticsserver.web.val.run/analytics.js). This script gets injected into the **\<head\>** of every page of my blog (you just got injected too) and sends events to the **POST** endpoint.
 
-In order to protect the server from unauthorized **reads**, different keys (and header) for the GET endpoint. Finally, serving the script directly from the server allows for easier api key updates for the POST endpoint. Ideally in the future, I would like to create a mechanism for automatically expiring/rotating the keys (any tips would be appreciated).
+In order to protect the server from unauthorized **reads**, different keys (and header) for the GET endpoint. Finally, serving the script directly from the server allows for easier API key updates for the POST endpoint. Ideally in the future, I would like to create a mechanism for automatically expiring/rotating the keys (any tips would be appreciated).
 
 
 ## Events
