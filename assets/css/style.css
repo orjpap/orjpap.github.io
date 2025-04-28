@@ -640,7 +640,7 @@ h2 {
   margin: 0.7em 0; }
 
 main {
-  margin: 0 90px;
+  margin: 0 10em;
   display: flex;
   height: 100%; }
   @media screen and (min-width: 1600px) {
