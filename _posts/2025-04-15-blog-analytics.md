@@ -30,7 +30,7 @@ The server basically has two endpoints:
 
 It also serves a [JS script](https://orjpap-bloganalyticsserver.web.val.run/analytics.js). This script gets injected into the **\<head\>** of every page of my blog (you just got injected too) and sends events to the **POST** endpoint.
 
-In order to protect the server from unauthorized access, the only **allowed origin** is my website. Both endpoints are protected by a secret API key. The script is **obfuscated** to make it harder to extract the API key. Finally, serving the script directly from the server allows for easier key **rotation** and updates.
+In order to protect the server from unauthorized **reads**, different keys (and header) for the GET endpoint. Finally, serving the script directly from the server allows for easier api key updates for the POST endpoint. Ideally in the future, I would like to create a mechanism for automatically expiring/rotating the keys (any tips would be appreciated).
 
 
 ## Events
@@ -65,3 +65,5 @@ That’s pretty much it! I’m really impressed that I pulled this together in l
 Feel free to fork my Val Town server if you're interested in rolling your own analytics.
 
 <iframe width="100%" height="400px" src="https://www.val.town/embed/orjpap/simpleAnalytics" title="Val Town" frameborder="0" allow="web-share" allowfullscreen></iframe>
+
+Special thanks to [John Syomochkin](https://github.com/mrfratello) for his tips about securing the GET endpoint.
