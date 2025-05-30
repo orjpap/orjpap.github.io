@@ -1,13 +1,13 @@
 #!/usr/bin/swift
 
-import Security
 import Foundation
+import Security
 
 struct Visitor: Codable {
     let url: String
     let referrer: String
     let timestamp: String
-    let userAgent: String
+    let userAgent: String?
 
     enum CodingKeys: String, CodingKey {
         case url
@@ -47,6 +47,7 @@ func fetchData(endpoint: String, apiKey: String, getHeader: String) -> [Visitor]
             visitors = try JSONDecoder().decode([Visitor].self, from: data)
         } catch {
             print("Error decoding JSON: \(error)")
+            print("Payload was: \(String(data: data, encoding: .utf8)!)")
         }
     }
 
@@ -100,28 +101,31 @@ func analyzeVisitors(_ visitors: [Visitor]) {
     // Analyze most visited posts
     var postCounts: [String: Int] = [:]
     for visitor in visitors {
-    if let cleanURL = URL(string: visitor.url)?.path {
-        postCounts[cleanURL, default: 0] += 1
-    } else {
-        postCounts[visitor.url, default: 0] += 1 // fallback in case URL parsing fails
+        if let cleanURL = URL(string: visitor.url)?.path {
+            postCounts[cleanURL, default: 0] += 1
+        } else {
+            postCounts[visitor.url, default: 0] += 1  // fallback in case URL parsing fails
+        }
     }
-}
 
     let maxReferrerVisibleLength = 40
-    let paddedReferrerLength = 43 // make this the same for all rows
+    let paddedReferrerLength = 43  // make this the same for all rows
 
     // Print results
     print("\n=== Visitor Statistics ===")
     let totalString = "Total".padding(toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
     print("\(totalString): \(visitors.count) visitors")
 
-    let lastSevenString = "Last 7 days".padding(toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
+    let lastSevenString = "Last 7 days".padding(
+        toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
     print("\(lastSevenString): \(weeklyVisitors) visitors")
 
-    let lastThirtyString = "Last 30 days".padding(toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
+    let lastThirtyString = "Last 30 days".padding(
+        toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
     print("\(lastThirtyString): \(monthlyVisitors) visitors")
 
-    let lastYearString = "Last Year".padding(toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
+    let lastYearString = "Last Year".padding(
+        toLength: paddedReferrerLength, withPad: " ", startingAt: 0)
     print("\(lastYearString): \(yearlyVisitors) visitors")
 
     print("\n=== Most Visited Posts ===")
@@ -139,7 +143,8 @@ func analyzeVisitors(_ visitors: [Visitor]) {
     let sortedReferrers = referrerCounts.sorted { $0.value > $1.value }
 
     for (referrer, count) in sortedReferrers {
-        let displayReferrer = truncatedAndPadded(referrer, maxLength: maxReferrerVisibleLength, padTo: paddedReferrerLength)
+        let displayReferrer = truncatedAndPadded(
+            referrer, maxLength: maxReferrerVisibleLength, padTo: paddedReferrerLength)
         let countStr = String(format: "%2d", count)
         print("\(displayReferrer): \(countStr) visitors")
     }
@@ -173,15 +178,16 @@ func retrieveFromKeychain(key: String) -> String? {
         kSecAttrService as String: key,
         kSecAttrAccount as String: keyChainUser,
         kSecReturnData as String: true,
-        kSecMatchLimit as String: kSecMatchLimitOne
+        kSecMatchLimit as String: kSecMatchLimitOne,
     ]
 
     var item: CFTypeRef?
     let status = SecItemCopyMatching(query as CFDictionary, &item)
 
     if status == errSecSuccess, let data = item as? Data,
-       let password = String(data: data, encoding: .utf8) {
-       return password
+        let password = String(data: data, encoding: .utf8)
+    {
+        return password
     } else {
         print("Error retrieving password: \(status)")
     }
